@@ -1,4 +1,6 @@
+import matplotlib.pyplot as plt
 import requests
+from collections import defaultdict, OrderedDict
 
 
 class DraCor:
@@ -11,13 +13,13 @@ class DraCor:
         return response.json()
 
     def __init__(self):
-        info = self.info()
+        info = self.dracor_info()
         self.name = info['name']
         self.status = info['status']
         self.existdb = info['existdb']
         self.version = info['version']
 
-    def info(self):
+    def dracor_info(self):
         return self.make_request(f"{self._base_url}/info")
 
     def corpora(self, include=''):
@@ -36,22 +38,72 @@ class Corpus(DraCor):
         assert corpusname in self.corpora_names(), "no such corpusname"
         super().__init__()
         self.corpusname = corpusname
-        info = self.info()
+        info = self.corpus_info()
         self.title = info['title']
         self.repository = info['repository']
-        self.title = info['title']
+        self.num_of_plays = len(info['dramas'])
 
-    def info(self):
+    def corpus_info(self):
         return self.make_request(f"{self._base_url}/corpora/{self.corpusname}")
 
     def plays_names(self):
-        return [play['name'] for play in self.info()['dramas']]
+        return [play['name'] for play in self.corpus_info()['dramas']]
 
     def plays_ids(self):
-        return [play['id'] for play in self.info()['dramas']]
+        return [play['id'] for play in self.corpus_info()['dramas']]
+
+    def written_years(self):
+        return [play['writtenYear'] for play in self.corpus_info()['dramas'] if play['writtenYear']]
+
+    def premiere_years(self):
+        return [play['premiereYear'] for play in self.corpus_info()['dramas'] if play['premiereYear']]
+
+    def print_years(self):
+        return [play['printYear'] for play in self.corpus_info()['dramas'] if play['printYear']]
 
     def metadata(self):
         return self.make_request(f"{self._base_url}/corpora/{self.corpusname}")
+
+    def summary(self):
+        written_years = self.written_years()
+        premiere_years = self.premiere_years()
+        print_years = self.print_years()
+        return {
+            'Corpus title': self.title,
+            'Corpus id': self.corpusname,
+            'Repository': self.repository,
+            'Written years': [min(written_years), max(written_years)],
+            'Premiere years': [min(premiere_years), max(premiere_years)],
+            'Years of the first printing': [min(print_years), max(print_years)],
+            'Number of plays in the corpus': self.num_of_plays,
+        }
+
+    def authors_summary(self):
+        authors = defaultdict(int)
+        info = self.corpus_info()
+        for play in info['dramas']:
+            for author in play['authors']:
+                authors[author['name']] += 1
+        return OrderedDict(sorted(authors.items(), key=lambda elem: -elem[1]))
+
+    def authors_summary_str(self):
+        authors = list(self.authors_summary().items())
+
+        return f"There are {len(authors)} authors in {self.title}\n\n" \
+               f"Top authors of the Corpus:" \
+               f"{authors[0][1]} - {authors[0][0]}\n" \
+               f"{authors[1][1]} - {authors[1][0]}\n" \
+               f"{authors[2][1]} - {authors[2][0]}\n" \
+               f"{authors[3][1]} - {authors[3][0]}\n" \
+               f"{authors[4][1]} - {authors[4][0]}\n"
+
+    def __str__(self):
+        info = self.summary()
+        return f"Written years: {info['Written years'][0]} - {info['Written years'][1]}\n" \
+               f"Premiere years: {info['Premiere years'][0]} - {info['Premiere years'][1]}\n" \
+               f"Years of the first printing: {info['Years of the first printing'][0]} - {info['Years of the first printing'][1]}\n" \
+               f"{info['Number of plays in the corpus']} plays in {info['Corpus title']}\n" \
+               f"Corpus id: {info['Corpus id']}, repository: {info['Repository']}"
 
 
 class Play(Corpus):
@@ -59,13 +111,13 @@ class Play(Corpus):
         super().__init__(corpusname)
         if play_id is not None:
             assert play_id in self.plays_ids(), "no such id"
-            self.playname = playname
+            self.playname = self.plays_names()[self.plays_ids().index(play_id)]
         elif playname is not None:
             assert playname in self.plays_names(), "no such playname"
-            self.play_id = play_id
+            self.playname = playname
         else:
-            raise Exception("no playname of play_id specified")
-        info = self.info()
+            raise Exception("no playname or play_id specified")
+        info = self.play_info()
         self.genre = info['genre']
         self.authors = info['authors']
         self.year_premiered = info['yearPremiered']
@@ -78,7 +130,7 @@ class Play(Corpus):
         self.play_id = info['id']
         self.source = info['source']
 
-    def info(self):
+    def play_info(self):
         return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}")
 
     def metrics(self):
@@ -115,6 +167,11 @@ class Play(Corpus):
     def stage_directions_with_speakers(self):
         return self.make_request(
             f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/stage-directions-with-speakers")
+
+    def plot(self):
+        # TODO: what should be displayed here?
+        plt.plot([1, 2, 3, 1.5])
+        plt.show()
 
 
 class Character(Play):
