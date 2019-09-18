@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import requests
+import functools
 from collections import defaultdict, OrderedDict
 
 
@@ -11,6 +12,12 @@ class DraCor:
         response = requests.get(url)
         response.raise_for_status()
         return response.json()
+
+    @staticmethod
+    def make_text_request(url):
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text
 
     def __init__(self):
         info = self.dracor_info()
@@ -86,16 +93,16 @@ class Corpus(DraCor):
                 authors[author['name']] += 1
         return OrderedDict(sorted(authors.items(), key=lambda elem: -elem[1]))
 
-    def authors_summary_str(self):
+    def authors_summary_str(self, num_of_authors=5):
         authors = list(self.authors_summary().items())
 
-        return f"There are {len(authors)} authors in {self.title}\n\n" \
-               f"Top authors of the Corpus:" \
-               f"{authors[0][1]} - {authors[0][0]}\n" \
-               f"{authors[1][1]} - {authors[1][0]}\n" \
-               f"{authors[2][1]} - {authors[2][0]}\n" \
-               f"{authors[3][1]} - {authors[3][0]}\n" \
-               f"{authors[4][1]} - {authors[4][0]}\n"
+        result_string = f"There are {len(authors)} authors in {self.title}\n\n" + "Top authors of the Corpus:\n"
+        for i in range(min(num_of_authors, len(authors))):
+            result_string += f"{authors[i][1]} - {authors[i][0]}\n"
+        return result_string
+
+    # def filter(self, ):
+    #     pass
 
     def __str__(self):
         info = self.summary()
@@ -130,26 +137,67 @@ class Play(Corpus):
         self.play_id = info['id']
         self.source = info['source']
 
-    def play_info(self):
-        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}")
-
-    def metrics(self):
-        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/metrics")
-
-    def tei(self):
-        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/tei")
-
-    def rdf(self):
-        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/rdf")
-
+    @property
+    @functools.lru_cache()
     def cast(self):
         return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/cast")
 
-    def csv(self):
-        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/networkdata/csv")
+    @property
+    @functools.lru_cache()
+    def num_of_male_characters(self):
+        return len([character for character in self.cast if character['gender'] == 'MALE'])
 
+    @property
+    @functools.lru_cache()
+    def num_of_female_characters(self):
+        return len([character for character in self.cast if character['gender'] == 'FEMALE'])
+
+    @property
+    @functools.lru_cache()
+    def num_of_unknown_characters(self):
+        return len([character for character in self.cast if character['gender'] == 'UNKNOWN'])
+
+    @property
+    @functools.lru_cache()
+    def rdf(self):
+        return self.make_text_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/rdf")
+
+    @property
+    @functools.lru_cache()
+    def csv(self):
+        return self.make_text_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/networkdata/csv")
+
+    @property
+    @functools.lru_cache()
     def gexf(self):
-        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/networkdata/gexf")
+        return self.make_text_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/networkdata/gexf")
+
+    @property
+    @functools.lru_cache()
+    def tei(self):
+        return self.make_text_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/tei")
+
+    @property
+    @functools.lru_cache()
+    def diameter(self):
+        return self.metrics()['diameter']
+
+    @property
+    @functools.lru_cache()
+    def average_path_length(self):
+        return self.metrics()['averagePathLength']
+
+    @property
+    @functools.lru_cache()
+    def density(self):
+        return self.metrics()['density']
+
+    def play_info(self):
+        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}")
+
+    @functools.lru_cache()
+    def metrics(self):
+        return self.make_request(f"{self._base_url}/corpora/{self.corpusname}/play/{self.playname}/metrics")
 
     def spoken_text(self, gender=''):
         assert gender in ['', 'FEMALE', 'MALE',
@@ -172,6 +220,17 @@ class Play(Corpus):
         # TODO: what should be displayed here?
         plt.plot([1, 2, 3, 1.5])
         plt.show()
+
+    def summary(self):
+        result_string = f"Author(s): {', '.join([author['name'] + ' (' + author['key'] + ')' for author in self.authors])}\n" \
+                        f"Title: {self.title} ({self.play_id}, {self.wikidata_id})\n" \
+                        f"Subtitle: {self.subtitle}\n" \
+                        f"Genre: {self.genre}\n" \
+                        f"Source: {self.source['name']} ({self.source['url']})\n" \
+                        f"Year (written): {self.year_written}\n" \
+                        f"Year (printed): {self.year_printed}\n" \
+                        f"Year (premiered): {self.year_premiered}\n"
+        return result_string
 
 
 class Character(Play):

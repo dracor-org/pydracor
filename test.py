@@ -1,5 +1,6 @@
 from dracor import DraCor, Corpus, Play, Character
 
 
-corpus = Corpus('ger')
-print(corpus.authors_summary_str())
+play = Play('rus', 'andreyev-ne-ubiy')
+print(play.average_path_length)
+print(play.density)
