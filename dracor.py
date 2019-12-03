@@ -78,6 +78,10 @@ class DraCor:
     def lowerCamelCase_to_snake_case(name):
         return re.sub('(?!^)([A-Z]+)', r'_\1', name).lower()
 
+    @staticmethod
+    def snake_case_to_lowerCamelCase(name):
+        return re.sub('_([^_]+)', lambda match: match.group(1).capitalize(), name)
+
     @lru_cache()
     def dracor_info(self):
         """Get API info.
@@ -480,7 +484,7 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: (int(play['writtenYear']) if ['writtenYear'] else play['writtenYear'])
+            play['id']: (int(play['writtenYear']) if play['writtenYear'] else play['writtenYear'])
             for play in self.corpus_info()['dramas']
         }
 
@@ -501,7 +505,7 @@ class Corpus(DraCor):
 
         return {
             play['id']: (int(play['premiereYear']) if play['premiereYear'] else play['premiereYear'])
-            for play in self.corpus_info()['dramas'] if play['premiereYear']
+            for play in self.corpus_info()['dramas']
         }
 
     @lru_cache()
@@ -521,7 +525,7 @@ class Corpus(DraCor):
 
         return {
             play['id']: (int(play['printYear']) if play['printYear'] else play['printYear'])
-            for play in self.corpus_info()['dramas'] if play['premiereYear']
+            for play in self.corpus_info()['dramas']
         }
 
     @lru_cache()
@@ -565,53 +569,55 @@ class Corpus(DraCor):
         Returns
         -------
         list
-            list of play objects that satisfy the conditions
+            list of play ids that satisfy the conditions
         """
 
-        plays = []
-        for play_id in self.play_ids():
-            play = Play(play_id=play_id)
-            was_error = False
-            for kwarg, value in kwargs.items():
-                if '__' not in kwarg:
-                    raise ValueError(f"Incorrect argument {kwarg} as it should contain '__'")
-                field, relation = kwarg.split('__')
-                if not hasattr(play, field):
-                    raise ValueError(f"Incorrect argument {kwarg} as it contains nonexistent field {field}")
-                field_value = getattr(play, field)
+        plays = self.corpus_info()['dramas']
+        for kwarg, value in kwargs.items():
+            if value is not None:
+                value = str(value)
+            if '__' not in kwarg:
+                raise ValueError(f"Incorrect argument {kwarg} as it should contain '__'")
+            field, relation = kwarg.split('__')
+            field = self.snake_case_to_lowerCamelCase(field)
+            if plays and field not in plays[0]:
+                raise ValueError(f"Incorrect argument {kwarg} as it contains nonexistent field {field}")
+            correct_plays = []
+            for play in plays:
+                field_value = play[field]
+                was_error = False
                 if relation == 'eq':
                     if field_value != value:
                         was_error = True
-                        break
                 elif relation == 'ne':
                     if field_value == value:
                         was_error = True
-                        break
                 elif relation == 'gt':
                     if field_value <= value:
                         was_error = True
-                        break
                 elif relation == 'ge':
                     if field_value < value:
                         was_error = True
-                        break
                 elif relation == 'lt':
                     if field_value >= value:
                         was_error = True
-                        break
                 elif relation == 'le':
                     if field_value > value:
                         was_error = True
-                        break
                 else:
                     raise ValueError(
                         f"Incorrect relation in argument {kwarg}"
                         f"as it should be either of the following: "
                         f"'eq' / 'ne' / 'gt' / 'ge' / 'lt' / 'le'"
                     )
-            if not was_error:
-                plays.append(play)
-        return plays
+                if not was_error:
+                    correct_plays.append(play)
+            plays = correct_plays
+        # for i, play in enumerate(plays):
+        #     for key in dict(play):
+        #         play[self.lowerCamelCase_to_snake_case(key)] = play.pop(key)
+        # return plays
+        return [play['id'] for play in plays]
 
     @lru_cache()
     def authors_summary(self):
@@ -754,6 +760,7 @@ class Play(Corpus):
         if play_id is not None:
             corpus_name = re.sub('\d+', '', play_id)
             assert corpus_name in self.corpora_names(), f'There is no such corpus {corpus_name}'
+            super().__init__(corpus_name)
             assert play_id in self.play_ids(), \
                 f"No such play_id in the {corpus_name} corpus aka '{self.corpus_name_to_title()[corpus_name]}'"
             self.id = play_id
@@ -774,7 +781,7 @@ class Play(Corpus):
         else:
             raise ValueError("No play_id, play_name or play_title specified")
 
-        super().__init__(self.play_title_to_corpus_name()[self.title])
+        # super().__init__(self.play_title_to_corpus_name()[self.title])
         info = self.play_info()
         for key in info:
             setattr(self, self.lowerCamelCase_to_snake_case(key), info[key])

@@ -1,6 +1,6 @@
 import unittest
 
-from dracor import DraCor
+from dracor import DraCor, Corpus
 
 CORPORA = sorted(['rus', 'ger', 'shake', 'rom', 'span', 'greek', 'swe', 'cal'])
 
@@ -12,6 +12,10 @@ class TestDraCorClass(unittest.TestCase):
     def test_lowerCamelCase_to_snake_case(self):
         f = self.dracor.lowerCamelCase_to_snake_case
         self.assertEqual(f('abCdEfghiJkl'), 'ab_cd_efghi_jkl')
+
+    def test_snake_case_to_lowerCamelCase(self):
+        f = self.dracor.snake_case_to_lowerCamelCase
+        self.assertEqual(f('ab_cd_efghi_jkl'), 'abCdEfghiJkl')
 
     def test_dracor_info(self):
         self.assertEqual(self.dracor.dracor_info(), {
@@ -121,6 +125,72 @@ class TestDraCorClass(unittest.TestCase):
     </results>
 </sparql>"""
         )
+
+class TestCorpusClass(unittest.TestCase):
+    maxDiff = None
+    corpus = Corpus('rus')
+    num_of_plays = 210
+
+    def test_init(self):
+        self.assertRaises(AssertionError, Corpus, 'nonexistent_corpusname')
+        self.assertEqual(self.corpus.corpus_name, 'rus')
+        self.assertEqual(self.corpus.name, 'rus')
+        self.assertEqual(self.corpus.title, 'Russian Drama Corpus')
+        self.assertEqual(self.corpus.repository, 'https://github.com/dracor-org/rusdracor')
+        self.assertEqual(len(self.corpus.dramas), self.num_of_plays)
+        self.assertEqual(self.corpus.num_of_plays, self.num_of_plays)
+
+    def test_corpus_info(self):
+        dct = self.corpus.corpus_info()
+        self.assertEqual(dct['name'], 'rus')
+        self.assertEqual(dct['title'], 'Russian Drama Corpus')
+        self.assertEqual(dct['repository'], 'https://github.com/dracor-org/rusdracor')
+        self.assertEqual(len(dct['dramas']), self.num_of_plays)
+
+    def test_play_ids(self):
+        play_ids = self.corpus.play_ids()
+        self.assertEqual(len(play_ids), self.num_of_plays)
+        self.assertTrue(all([play_id.startswith('rus000') for play_id in play_ids]))
+
+    def test_play_names(self):
+        dct = self.corpus.play_names()
+        self.assertEqual(set(dct), set(self.corpus.play_ids()))
+        self.assertEqual(dct['rus000138'], 'andreyev-ne-ubiy')
+
+    def test_play_titles(self):
+        dct = self.corpus.play_titles()
+        self.assertEqual(set(dct), set(self.corpus.play_ids()))
+        self.assertEqual(dct['rus000138'], 'Не убий')
+
+    def test_written_years(self):
+        dct = self.corpus.written_years()
+        self.assertEqual(set(dct), set(self.corpus.play_ids()))
+        self.assertEqual(dct['rus000138'], 1913)
+
+    def test_premiere_years(self):
+        dct = self.corpus.premiere_years()
+        self.assertEqual(set(dct), set(self.corpus.play_ids()))
+        self.assertEqual(dct['rus000138'], 1913)
+
+    def test_print_years(self):
+        dct = self.corpus.print_years()
+        self.assertEqual(set(dct), set(self.corpus.play_ids()))
+        self.assertEqual(dct['rus000138'], 1913)
+
+    def test_metadata(self):
+        lst = self.corpus.metadata()
+        self.assertIsInstance(lst, list)
+        self.assertEqual(len(lst), self.num_of_plays)
+        self.assertIsInstance(lst[0], dict)
+        self.assertEqual(set([elem['id'] for elem in lst]), set(self.corpus.play_ids()))
+        lst = sorted(lst, key=lambda elem: elem['id'])
+        self.assertEqual(lst[166]['id'], 'rus000167')
+        self.assertEqual(lst[166]['size'], 12)
+        self.assertEqual(lst[166]['numOfSpeakersMale'], 5)
+
+    def test_filter(self):
+        lst = self.corpus.filter(written_year__eq=1913, network_size__lt=20)
+        self.assertEqual(set(lst), {'rus000137', 'rus000046'})
 
 
 if __name__ == '__main__':
