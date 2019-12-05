@@ -556,8 +556,9 @@ class Corpus(DraCor):
         ----------
         kwargs
             {
-                "written_year__eq": 1930,
-                "all_in_index__gt": 2,
+                "written_year__eq": 1913,
+                "network_size__lt": 20,
+                "title__icontains": "в",
                 ...
             }
 
@@ -578,13 +579,23 @@ class Corpus(DraCor):
                 value = str(value)
             if '__' not in kwarg:
                 raise ValueError(f"Incorrect argument {kwarg} as it should contain '__'")
-            field, relation = kwarg.split('__')
-            field = self.snake_case_to_lowerCamelCase(field)
+            field, relation = kwarg.rsplit('__', maxsplit=1)
+            full_field = self.snake_case_to_lowerCamelCase(field)
+            field = full_field.split('_')[0]
             if plays and field not in plays[0]:
                 raise ValueError(f"Incorrect argument {kwarg} as it contains nonexistent field {field}")
             correct_plays = []
             for play in plays:
+                if field not in play:
+                    continue
                 field_value = play[field]
+                if full_field != field:
+                    if field == 'authors':
+                        field_value = ' && '.join([elem[full_field.split('_')[1].lower()] for elem in field_value])
+                    else:
+                        field_value = field_value[full_field.split('_')[1].lower()]
+                if field_value is None:
+                    continue
                 was_error = False
                 if relation == 'eq':
                     if field_value != value:
@@ -604,11 +615,26 @@ class Corpus(DraCor):
                 elif relation == 'le':
                     if field_value > value:
                         was_error = True
+                elif relation == 'contains':
+                    if value not in field_value:
+                        was_error = True
+                elif relation == 'icontains':
+                    if value.lower() not in field_value.lower():
+                        was_error = True
+                elif relation == 'exact':
+                    if field_value != value:
+                        was_error = True
+                elif relation == 'iexact':
+                    if field_value.lower() != value.lower():
+                        was_error = True
+                elif relation == 'in':
+                    if field_value not in value:
+                        was_error = True
                 else:
                     raise ValueError(
                         f"Incorrect relation in argument {kwarg}"
                         f"as it should be either of the following: "
-                        f"'eq' / 'ne' / 'gt' / 'ge' / 'lt' / 'le'"
+                        f"'eq' / 'ne' / 'gt' / 'ge' / 'lt' / 'le' / 'contains' / 'icontains' / 'exact' / 'iexact' / 'in'"
                     )
                 if not was_error:
                     correct_plays.append(play)
@@ -617,11 +643,18 @@ class Corpus(DraCor):
         #     for key in dict(play):
         #         play[self.lowerCamelCase_to_snake_case(key)] = play.pop(key)
         # return plays
+        # print(plays)
         return [play['id'] for play in plays]
 
     @lru_cache()
-    def authors_summary(self):
+    def authors_summary(self, num_of_authors=None):
         """Authors' summary for a corpus.
+
+        Parameters
+        ----------
+        num_of_authors
+            Number of authors to return
+            If n is negative, then slice [::n] is taken
 
         Returns
         -------
@@ -639,10 +672,13 @@ class Corpus(DraCor):
         for play in info['dramas']:
             for author in play['authors']:
                 authors[author['name']] += 1
-        return sorted(authors.items(), key=lambda elem: -elem[1])
+        sorted_authors = sorted(authors.items(), key=lambda elem: -elem[1])
+        if num_of_authors is not None:
+            return sorted_authors[:num_of_authors]
+        return sorted_authors
 
     @lru_cache()
-    def authors_summary_str(self, num_of_authors=5):
+    def authors_summary_str(self, num_of_authors=None):
         """String representation of authors_summary method
 
         Parameters
@@ -662,9 +698,8 @@ class Corpus(DraCor):
             ...
         """
         authors = self.authors_summary()
-
-        result_string = f"There are {len(authors)} authors in {self.title}\n\n" + "Top authors of the Corpus:\n"
-        for i in range(min(num_of_authors, len(authors))):
+        result_string = f"There are {len(authors)} authors in {self.title}\n\n" + f"Top {num_of_authors or len(authors)} authors of the Corpus:\n"
+        for i in range(min(num_of_authors or len(authors), len(authors))):
             result_string += f"{authors[i][1]} - {authors[i][0]}\n"
         return result_string
 
@@ -769,19 +804,20 @@ class Play(Corpus):
         elif play_name is not None:
             play_names = self.play_name_to_play_id()
             assert play_name in play_names, f"No such play_name {play_name} in the corpora"
+            super().__init__(self.play_name_to_corpus_name()[play_name])
             self.name = play_name
             self.id = self.play_name_to_play_id()[self.name]
             self.title = self.play_id_to_play_title()[self.id]
         elif play_title is not None:
             play_titles = self.play_title_to_play_id()
             assert play_title in play_titles, f"No such play_title {play_title} in the corpora"
+            self.id = self.play_title_to_play_id()[play_title]
+            super().__init__(self.play_title_to_corpus_name()[play_title])
             self.title = play_title
-            self.id = self.play_title_to_play_id()[self.title]
             self.name = self.play_id_to_play_name()[self.id]
         else:
             raise ValueError("No play_id, play_name or play_title specified")
 
-        # super().__init__(self.play_title_to_corpus_name()[self.title])
         info = self.play_info()
         for key in info:
             setattr(self, self.lowerCamelCase_to_snake_case(key), info[key])
@@ -819,7 +855,7 @@ class Play(Corpus):
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/metrics")
 
     @lru_cache()
-    def cast(self):
+    def get_cast(self):
         """Get a list of characters of a play
 
         Returns
@@ -847,7 +883,7 @@ class Play(Corpus):
         int
             The number of male characters in a play
         """
-        return len([character for character in self.cast() if character['gender'] == 'MALE'])
+        return len([character for character in self.get_cast() if character['gender'] == 'MALE'])
 
     @property
     @lru_cache()
@@ -860,7 +896,7 @@ class Play(Corpus):
             The number of female characters in a play
         """
 
-        return len([character for character in self.cast() if character['gender'] == 'FEMALE'])
+        return len([character for character in self.get_cast() if character['gender'] == 'FEMALE'])
 
     @property
     @lru_cache()
@@ -873,7 +909,7 @@ class Play(Corpus):
             The number of characters of unknown gender in a play
         """
 
-        return len([character for character in self.cast() if character['gender'] == 'UNKNOWN'])
+        return len([character for character in self.get_cast() if character['gender'] == 'UNKNOWN'])
 
     @property
     @lru_cache()
@@ -1091,7 +1127,7 @@ class Character(Play):
         """
 
         super().__init__(play_id=play_id, play_name=play_name, play_title=play_title)
-        play_cast = self.cast()
+        play_cast = self.get_cast()
         was_character = False
         for i, character in enumerate(play_cast):
             if character['id'] == character_id:
