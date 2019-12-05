@@ -20,6 +20,15 @@ class DraCor:
 
     _base_url = 'https://dracor.org/api/'
 
+    def __init__(self):
+        """Set name, status, existdb and version attributes from dracor_info method
+        """
+
+        info = self.dracor_info()
+        info = self.transform_dict(info)
+        for key in info:
+            setattr(self, key, info[key])
+
     @staticmethod
     def make_get_json_request(url):
         """Base method to send GET request and retrieve json from response.
@@ -66,20 +75,34 @@ class DraCor:
         response.raise_for_status()
         return response.text
 
-    def __init__(self):
-        """Set name, status, existdb and version attributes from dracor_info method
-        """
-
-        info = self.dracor_info()
-        for key in info:
-            setattr(self, self.lowerCamelCase_to_snake_case(key), info[key])
-
     @staticmethod
     def lowerCamelCase_to_snake_case(name):
+        """Convert lowerCamelCase to snake_case"""
         return re.sub('(?!^)([A-Z]+)', r'_\1', name).lower()
+
+    def transform_dict(self, multilevel_dict, f=0):
+        """Apply f (0: lowerCamelCase_to_snake_case; another_value: snake_case_to_lowerCamelCase)
+        to every key name in a multilevel_dict"""
+        if f == 0:
+            f = self.lowerCamelCase_to_snake_case
+        else:
+            f = self.snake_case_to_lowerCamelCase
+        new_dict = multilevel_dict
+        new_dict = dict(
+            map(lambda key_value: (f(key_value[0]), key_value[1]), new_dict.items())
+        )
+        for key, value in new_dict.items():
+            if isinstance(value, dict):
+                new_dict[key] = self.transform_dict(value)
+            elif isinstance(value, list):
+                for index, item in enumerate(value):
+                    if isinstance(item, dict):
+                        new_dict[key][index] = self.transform_dict(item)
+        return new_dict
 
     @staticmethod
     def snake_case_to_lowerCamelCase(name):
+        """Convert snake_case to lowerCamelCase"""
         return re.sub('_([^_]+)', lambda match: match.group(1).capitalize(), name)
 
     @lru_cache()
@@ -398,8 +421,9 @@ class Corpus(DraCor):
         super().__init__()
         self.corpus_name = corpus_name
         info = self.corpus_info()
+        info = self.transform_dict(info)
         for key in info:
-            setattr(self, self.lowerCamelCase_to_snake_case(key), info[key])
+            setattr(self, key, info[key])
         self.num_of_plays = len(info['dramas'])
 
     @lru_cache()
@@ -484,7 +508,7 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: (int(play['writtenYear']) if play['writtenYear'] else play['writtenYear'])
+            play['id']: (int(play['written_year']) if play['written_year'] else play['written_year'])
             for play in self.corpus_info()['dramas']
         }
 
@@ -504,7 +528,7 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: (int(play['premiereYear']) if play['premiereYear'] else play['premiereYear'])
+            play['id']: (int(play['premiere_year']) if play['premiere_year'] else play['premiere_year'])
             for play in self.corpus_info()['dramas']
         }
 
@@ -524,7 +548,7 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: (int(play['printYear']) if play['printYear'] else play['printYear'])
+            play['id']: (int(play['print_year']) if play['print_year'] else play['print_year'])
             for play in self.corpus_info()['dramas']
         }
 
@@ -580,8 +604,8 @@ class Corpus(DraCor):
             if '__' not in kwarg:
                 raise ValueError(f"Incorrect argument {kwarg} as it should contain '__'")
             field, relation = kwarg.rsplit('__', maxsplit=1)
-            full_field = self.snake_case_to_lowerCamelCase(field)
-            field = full_field.split('_')[0]
+            full_field = field
+            field = full_field.split('__')[0]
             if plays and field not in plays[0]:
                 raise ValueError(f"Incorrect argument {kwarg} as it contains nonexistent field {field}")
             correct_plays = []
@@ -591,9 +615,9 @@ class Corpus(DraCor):
                 field_value = play[field]
                 if full_field != field:
                     if field == 'authors':
-                        field_value = ' && '.join([elem[full_field.split('_')[1].lower()] for elem in field_value])
+                        field_value = ' && '.join([elem[full_field.split('__')[1].lower()] for elem in field_value])
                     else:
-                        field_value = field_value[full_field.split('_')[1].lower()]
+                        field_value = field_value[full_field.split('__')[1].lower()]
                 if field_value is None:
                     continue
                 was_error = False
@@ -819,13 +843,15 @@ class Play(Corpus):
             raise ValueError("No play_id, play_name or play_title specified")
 
         info = self.play_info()
+        info = self.transform_dict(info)
         for key in info:
-            setattr(self, self.lowerCamelCase_to_snake_case(key), info[key])
+            setattr(self, key, info[key])
         if hasattr(self, 'author'):
             delattr(self, 'author')
         metrics = self.metrics()
+        metrics = self.transform_dict(metrics)
         for key in metrics:
-            setattr(self, self.lowerCamelCase_to_snake_case(key), metrics[key])
+            setattr(self, key, metrics[key])
 
     @lru_cache()
     def play_info(self):
@@ -1136,10 +1162,13 @@ class Character(Play):
         assert was_character, f'There is no character "{character_id}" in the play with' \
                               f'play_id "{play_id}" / play_name "{play_name}" / play_title "{play_title}"'
         self.id = character_id
+        play_cast[i] = self.transform_dict(play_cast[i])
         for key in play_cast[i]:
-            setattr(self, self.lowerCamelCase_to_snake_case(key), play_cast[key])
-        for key in self.cast:
-            setattr(self, self.lowerCamelCase_to_snake_case(key), self.cast[key])
+            setattr(self, key, play_cast[i][key])
+        dct = [elem for elem in self.cast if elem['id'] == self.id][0]
+        dct = self.transform_dict(dct)
+        for key, value in dct.items():
+            setattr(self, key, value)
 
     def summary(self):
         """Character summary
@@ -1152,8 +1181,10 @@ class Character(Play):
                 ...
             }
         """
-
-        return vars(self)
+        dct = vars(self)
+        for key in dct:
+            dct[self.lowerCamelCase_to_snake_case(key)] = dct.pop(key)
+        return dct
 
     def __str__(self):
         """Character summary in a text

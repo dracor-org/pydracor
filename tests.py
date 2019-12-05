@@ -9,6 +9,22 @@ class TestDraCorClass(unittest.TestCase):
     maxDiff = None
     dracor = DraCor()
 
+    def test_init(self):
+        self.assertEqual(self.dracor.name, "DraCor API")
+        self.assertEqual(self.dracor.status, "beta")
+        self.assertEqual(self.dracor.existdb, "4.7.0")
+        self.assertEqual(self.dracor.version, "0.57.1")
+
+    def test_transform_dict(self):
+        self.assertEqual(
+            self.dracor.transform_dict({'dramasRus': [{'aB': 3, 'cD': 4, 'eF': [{'gH': 5}]}]}),
+            {'dramas_rus': [{'a_b': 3, 'c_d': 4, 'e_f': [{'g_h': 5}]}]}
+        )
+        self.assertEqual(
+            self.dracor.transform_dict({'abcDfg': {'tmPr': 1, 'egFr': 2}}),
+            {'abc_dfg': {'tm_pr': 1, 'eg_fr': 2}}
+        )
+
     def test_lowerCamelCase_to_snake_case(self):
         f = self.dracor.lowerCamelCase_to_snake_case
         self.assertEqual(f('abCdEfghiJkl'), 'ab_cd_efghi_jkl')
@@ -101,7 +117,6 @@ class TestDraCorClass(unittest.TestCase):
         self.assertEqual(dct['andreyev-ne-ubiy'], 'rus000138')
 
     def test_sparql(self):
-        # print(self.dracor.sparql('SELECT * WHERE {?s ?p ?o} LIMIT 1'))
         self.assertEqual(
             self.dracor.sparql('SELECT * WHERE {?s ?p ?o} LIMIT 1'),
             """<sparql xmlns="http://www.w3.org/2005/sparql-results#">
@@ -351,8 +366,9 @@ class TestPlayClass(unittest.TestCase):
 
     def test_play_info(self):
         play_info = self.play.play_info()
+        play_info = DraCor().transform_dict(play_info)
         for key in play_info:
-            setattr(self, self.lowerCamelCase_to_snake_case(key), play_info[key])
+            setattr(self, key, play_info[key])
         self.assertEqual(play_info['id'], 'rus000160')
         self.assertEqual(play_info['corpus'], 'rus')
         self.assertEqual(play_info['name'], 'ostrovsky-dohodnoe-mesto')
@@ -367,7 +383,7 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(play_info['year_printed'], 1856)
         self.assertTrue('cast' in play_info)
         self.assertTrue('authors' in play_info)
-        self.assertFalse('author' in play_info)
+        self.assertTrue('author' in play_info)
         self.assertTrue('source' in play_info)
         self.assertTrue('year_printed' in play_info)
         self.assertTrue('original_source' in play_info)
@@ -449,12 +465,41 @@ class TestPlayClass(unittest.TestCase):
         )
 
 
-# class TestCharacterClass(unittest.TestCase):
-#     maxDiff = None
-#     play = Character('yakov', 'rus000138')
-#
-#     def test_init(self):
-#         pass
+class TestCharacterClass(unittest.TestCase):
+    maxDiff = None
+    character = Character('yakov', 'rus000138')
+
+    def test_init(self):
+        self.assertRaises(AssertionError, Character, 'nonexistent_character', 'rus000138')
+        self.assertEqual(self.character.id, 'yakov')
+        self.assertEqual(self.character.name, 'Яков')
+        self.assertEqual(self.character.sex, 'MALE')
+        self.assertEqual(self.character.gender, 'MALE')
+        self.assertEqual(self.character.is_group, False)
+        self.assertEqual(self.character.num_of_speech_acts, 192)
+        self.assertEqual(self.character.num_of_scenes, 5)
+        self.assertEqual(self.character.num_of_words, 2713)
+
+    def test_summary(self):
+        character_summary = self.character.summary()
+        self.assertEqual(character_summary['id'], 'yakov')
+        self.assertEqual(character_summary['name'], 'Яков')
+        self.assertEqual(character_summary['sex'], 'MALE')
+        self.assertEqual(character_summary['gender'], 'MALE')
+        self.assertEqual(character_summary['is_group'], False)
+        self.assertEqual(character_summary['num_of_speech_acts'], 192)
+        self.assertEqual(character_summary['num_of_scenes'], 5)
+        self.assertEqual(character_summary['num_of_words'], 2713)
+
+    def test_str(self):
+        self.assertEqual(
+            str(self.character),
+            f"Id: yakov\n"
+            f"Name: Яков\n"
+            f"Sex: MALE\n"
+            f"Gender: MALE\n"
+            f"Is group: False\n"
+        )
 
 
 if __name__ == '__main__':
