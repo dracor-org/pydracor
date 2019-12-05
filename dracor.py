@@ -25,12 +25,10 @@ class DraCor:
         """
 
         info = self.dracor_info()
-        info = self.transform_dict(info)
         for key in info:
             setattr(self, key, info[key])
 
-    @staticmethod
-    def make_get_json_request(url):
+    def make_get_json_request(self, url):
         """Base method to send GET request and retrieve json from response.
 
         Parameters
@@ -50,7 +48,8 @@ class DraCor:
 
         response = requests.get(url)
         response.raise_for_status()
-        return response.json()
+        result = self.transform_dict(response.json())
+        return result
 
     @staticmethod
     def make_get_text_request(url):
@@ -80,17 +79,7 @@ class DraCor:
         """Convert lowerCamelCase to snake_case"""
         return re.sub('(?!^)([A-Z]+)', r'_\1', name).lower()
 
-    def transform_dict(self, multilevel_dict, f=0):
-        """Apply f (0: lowerCamelCase_to_snake_case; another_value: snake_case_to_lowerCamelCase)
-        to every key name in a multilevel_dict"""
-        if f == 0:
-            f = self.lowerCamelCase_to_snake_case
-        else:
-            f = self.snake_case_to_lowerCamelCase
-        new_dict = multilevel_dict
-        new_dict = dict(
-            map(lambda key_value: (f(key_value[0]), key_value[1]), new_dict.items())
-        )
+    def transform_dict_support(self, new_dict):
         for key, value in new_dict.items():
             if isinstance(value, dict):
                 new_dict[key] = self.transform_dict(value)
@@ -98,6 +87,24 @@ class DraCor:
                 for index, item in enumerate(value):
                     if isinstance(item, dict):
                         new_dict[key][index] = self.transform_dict(item)
+        return new_dict
+
+    def transform_dict(self, multilevel_dict, f=0):
+        """Apply f (0: lowerCamelCase_to_snake_case; another_value: snake_case_to_lowerCamelCase)
+        to every key name in a multilevel_dict or multilevel_list"""
+        if f == 0:
+            f = self.lowerCamelCase_to_snake_case
+        else:
+            f = self.snake_case_to_lowerCamelCase
+        new_dict = multilevel_dict
+        if isinstance(new_dict, dict):
+            new_dict = dict(
+                map(lambda key_value: (f(key_value[0]), key_value[1]), new_dict.items())
+            )
+            new_dict = self.transform_dict_support(new_dict)
+        elif isinstance(new_dict, list):
+            for i, inner_new_dict in enumerate(new_dict):
+                new_dict[i] = self.transform_dict(inner_new_dict)
         return new_dict
 
     @staticmethod
@@ -169,10 +176,22 @@ class DraCor:
         Returns
         -------
         list
-            ['rus', ...]
+            ['cal', ...]
         """
 
         return [corpus['name'] for corpus in self.corpora()]
+
+    @lru_cache()
+    def corpora_titles(self):
+        """Get all available corpora titles.
+
+        Returns
+        -------
+        list
+            ['Calderón Drama Corpus', ...]
+        """
+
+        return [corpus['title'] for corpus in self.corpora()]
 
     @lru_cache()
     def corpus_name_to_field(self, field):
@@ -395,6 +414,58 @@ class DraCor:
 
         return self.make_get_text_request(f"{self._base_url}/sparql?query={query}")
 
+    @lru_cache()
+    def summary(self):
+        """DraCor summary
+
+        Returns
+        -------
+        dictionary
+            {
+                "name": "DraCor API",
+                "status": "beta",
+                "existdb": "4.7.0",
+                "version": "0.57.1",
+                "corpuses_full_names": ["Calderón Drama Corpus", "German Drama Corpus", "Greek Drama Corpus", "Roman Drama Corpus", "Russian Drama Corpus", "Shakespeare Drama Corpus", "Spanish Drama Corpus", "Swedish Drama Corpus"],
+                "corpuses_abbreviations": ["cal", "ger", "greek", "rom", "rus", "shake", "span", "swe"],
+                "number_of_corpuses": 8,
+            }
+        """
+
+        info = self.dracor_info()
+        corpora_names = self.corpora_names()
+        info.update({
+            "corpuses_full_names": self.corpora_titles(),
+            "corpuses_abbreviations": corpora_names,
+            "number_of_corpuses": len(corpora_names)
+        })
+        return info
+
+    @lru_cache()
+    def __str__(self):
+        """DraCor summary in a text
+
+        Returns
+        -------
+        string
+            "Name: DraCor API
+            Status: beta
+            Existdb: 4.7.0
+            Version: 0.57.1
+            Corpuses (full names): Calderón Drama Corpus, German Drama Corpus, Greek Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus
+            Corpuses (abbreviations): cal, ger, greek, rom, rus, shake, span, swe
+            Number of corpuses: 8"
+        """
+
+        info = self.summary()
+        return f"Name: {info['name']}\n" \
+               f"Status: {info['status']}\n" \
+               f"Existdb: {info['existdb']}\n" \
+               f"Version: {info['version']}\n" \
+               f"Corpuses (full names): {', '.join(info['corpuses_full_names'])}\n" \
+               f"Corpuses (abbreviations): {', '.join(info['corpuses_abbreviations'])}\n" \
+               f"Number of corpuses: {info['number_of_corpuses']}\n"
+
 
 class Corpus(DraCor):
     """
@@ -421,7 +492,6 @@ class Corpus(DraCor):
         super().__init__()
         self.corpus_name = corpus_name
         info = self.corpus_info()
-        info = self.transform_dict(info)
         for key in info:
             setattr(self, key, info[key])
         self.num_of_plays = len(info['dramas'])
@@ -563,7 +633,7 @@ class Corpus(DraCor):
                 {
                     "id": "rus000167",
                     "size": 12,
-                    "numOfSpeakersMale": 5,
+                    "num_of_speakers_male": 5,
                     ...
                 },
                 ...
@@ -843,13 +913,11 @@ class Play(Corpus):
             raise ValueError("No play_id, play_name or play_title specified")
 
         info = self.play_info()
-        info = self.transform_dict(info)
         for key in info:
             setattr(self, key, info[key])
         if hasattr(self, 'author'):
             delattr(self, 'author')
         metrics = self.metrics()
-        metrics = self.transform_dict(metrics)
         for key in metrics:
             setattr(self, key, metrics[key])
 
@@ -874,7 +942,7 @@ class Play(Corpus):
         dictionary
             {
                 "size": 23,
-                "averageClustering": 0.9121040025468615,
+                "average_clustering": 0.9121040025468615,
                 ...
             }
         """
@@ -889,7 +957,7 @@ class Play(Corpus):
         dictionary
             [
                 {
-                    "numOfSpeechActs": 192,
+                    "num_of_speech_acts": 192,
                     "gender": "MALE",
                     ...
                 },
@@ -1162,7 +1230,6 @@ class Character(Play):
         assert was_character, f'There is no character "{character_id}" in the play with' \
                               f'play_id "{play_id}" / play_name "{play_name}" / play_title "{play_title}"'
         self.id = character_id
-        play_cast[i] = self.transform_dict(play_cast[i])
         for key in play_cast[i]:
             setattr(self, key, play_cast[i][key])
         dct = [elem for elem in self.cast if elem['id'] == self.id][0]
@@ -1206,3 +1273,17 @@ class Character(Play):
                         f"Gender: {self.gender}\n" \
                         f"Is group: {self.is_group}\n"
         return result_string
+
+
+if __name__ == "__main__":
+    dracor = DraCor()
+    print(f'DraCor info:\n{str(dracor)}')
+
+    corpus = Corpus('rus')
+    print(f'RUS corpus info:\n{str(corpus)}')
+
+    play = Play('rus000160')
+    print(f'Play rus000160 info:\n{str(play)}')
+
+    character = Character('yakov', 'rus000138')
+    print(f'Character yakov (rus000138) info:\n{str(character)}')

@@ -24,6 +24,20 @@ class TestDraCorClass(unittest.TestCase):
             self.dracor.transform_dict({'abcDfg': {'tmPr': 1, 'egFr': 2}}),
             {'abc_dfg': {'tm_pr': 1, 'eg_fr': 2}}
         )
+        self.assertEqual(
+            self.dracor.transform_dict([{
+                'numOfSpeechActs': 192, 'gender': 'MALE', 'weightedDegree': 30, 'numOfScenes': 5,
+                'name': 'Яков', 'numOfWords': 2713, 'degree': 21, 'closeness': 0.9565217391304348,
+                'eigenvector': 0.2638364418039411, 'isGroup': False, 'id': 'yakov',
+                'betweenness': 0.1356421356421356
+            }]),
+            [{
+                'num_of_speech_acts': 192, 'gender': 'MALE', 'weighted_degree': 30,
+                'num_of_scenes': 5, 'name': 'Яков', 'num_of_words': 2713, 'degree': 21,
+                'closeness': 0.9565217391304348, 'eigenvector': 0.2638364418039411,
+                'is_group': False, 'id': 'yakov', 'betweenness': 0.1356421356421356
+            }]
+        )
 
     def test_lowerCamelCase_to_snake_case(self):
         f = self.dracor.lowerCamelCase_to_snake_case
@@ -202,7 +216,7 @@ class TestCorpusClass(unittest.TestCase):
         lst = sorted(lst, key=lambda elem: elem['id'])
         self.assertEqual(lst[166]['id'], 'rus000167')
         self.assertEqual(lst[166]['size'], 12)
-        self.assertEqual(lst[166]['numOfSpeakersMale'], 5)
+        self.assertEqual(lst[166]['num_of_speakers_male'], 5)
 
     def test_filter(self):
         self.assertRaises(
@@ -366,7 +380,6 @@ class TestPlayClass(unittest.TestCase):
 
     def test_play_info(self):
         play_info = self.play.play_info()
-        play_info = DraCor().transform_dict(play_info)
         for key in play_info:
             setattr(self, key, play_info[key])
         self.assertEqual(play_info['id'], 'rus000160')
