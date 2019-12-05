@@ -1,6 +1,6 @@
 import unittest
 
-from dracor import DraCor, Corpus, Play, Character
+from pydracor import DraCor, Corpus, Play, Character
 
 CORPORA = sorted(['rus', 'ger', 'shake', 'rom', 'span', 'greek', 'swe', 'cal'])
 

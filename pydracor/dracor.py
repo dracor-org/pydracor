@@ -1138,7 +1138,6 @@ class Play(Corpus):
         )
 
     def plot(self):
-        # TODO: what should be displayed here?
         plt.plot([1, 2, 3, 1.5])
         plt.show()
 
