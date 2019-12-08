@@ -2,7 +2,7 @@ import unittest
 
 from pydracor import DraCor, Corpus, Play, Character
 
-CORPORA = sorted(['rus', 'ger', 'shake', 'rom', 'span', 'greek', 'swe', 'cal'])
+CORPORA = sorted(['rus', 'ger', 'shake', 'rom', 'span', 'greek', 'swe', 'cal', 'als'])
 
 
 class TestDraCorClass(unittest.TestCase):
@@ -58,7 +58,7 @@ class TestDraCorClass(unittest.TestCase):
     def test_corpora(self):
         corpora = self.dracor.corpora()
         self.assertEqual(type(corpora), list)
-        self.assertEqual(len(corpora), 8)
+        self.assertEqual(len(corpora), 9)
         self.assertEqual(type(corpora[0]), dict)
         self.assertEqual(
             {corpus['name'] for corpus in corpora},
@@ -86,7 +86,7 @@ class TestDraCorClass(unittest.TestCase):
             self.dracor.corpus_name_to_repository(),
             {
                 corpus: f'{base_url}/{corpus}dracor'
-                for corpus in ['rus', 'ger', 'shake', 'rom', 'span', 'greek', 'swe', 'cal']
+                for corpus in CORPORA
             }
         )
 
@@ -96,7 +96,8 @@ class TestDraCorClass(unittest.TestCase):
             {
                 corpus: f'{lang} Drama Corpus'
                 for corpus, lang in
-                zip(CORPORA, ['Calderón', 'German', 'Greek', 'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish'])
+                zip(CORPORA, ['Calderón', 'German', 'Greek', 'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish',
+                              'Alsatian'])
             }
         )
 
@@ -439,9 +440,13 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(gexf.split('\n')[0], '<?xml version="1.0" encoding="UTF-8"?>')
 
     def test_spoken_text(self):
+        self.assertRaises(AssertionError, self.play.spoken_text, gender='unknown_gender')
         play_spoken_text = self.play.spoken_text()
         self.assertIsInstance(play_spoken_text, str)
         self.assertEqual(len(play_spoken_text.split('\n')), 934)
+        self.assertEqual(len(self.play.spoken_text(gender='MALE').split('\n')), 576)
+        self.assertEqual(len(self.play.spoken_text(gender='FEMALE').split('\n')), 358)
+        self.assertEqual(len(self.play.spoken_text(gender='UNKNOWN').split('\n')), 0)
 
     def test_spoken_text_by_character(self):
         play_spoken_text_by_character = self.play.spoken_text_by_character()
