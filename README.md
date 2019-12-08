@@ -208,7 +208,7 @@ PyDraCor is a Python package which provides access to the DraCor API.
 
 ## Installation
 ```sh
-$ pip install dracor
+$ pip install pydracor
 ```
 ## Todos
  - write more methods
