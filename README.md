@@ -1,4 +1,4 @@
-# PyDraCcor
+# PyDraCor
 
 PyDraCor is a Python package which provides access to the DraCor API.
 
@@ -20,7 +20,7 @@ PyDraCor is a Python package which provides access to the DraCor API.
 ### Import all classes
 
 ```python
->>> import from pydracor import *
+>>> from pydracor import *
 ```
 
 ### Dracor
