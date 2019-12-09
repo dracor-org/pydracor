@@ -109,12 +109,11 @@ PyDraCor is a Python package which provides access to the DraCor API.
     ```
   - Filter Plays of a Corpus
   
-  Filters are equivalent to the django filters
+    Filters are equivalent to the django filters
   
-  Possible relations: *eq* / *ne* / *gt* / *ge* / *lt* / *le* / *contains* / *icontains* / *exact* / *iexact* / *in*
+    Possible relations: *eq* / *ne* / *gt* / *ge* / *lt* / *le* / *contains* / *icontains* / *exact* / *iexact* / *in*
   
-  Possible fields: all the attributes that the *Corpus* instance contains
-  
+    Possible fields: all the attributes that the *Corpus* instance contains
     ```python
     >>> corpus.filter(written_year__eq=1913, network_size__lt=20)
     >>> corpus.filter(print_year__lt=1850, source__icontains='lib.ru', premiere_year__gt=1845)
@@ -136,14 +135,13 @@ PyDraCor is a Python package which provides access to the DraCor API.
 ### Play
   - Initialize a *Play* instance
 
-  If *play_id* is not None, *play_name* and *play_title* are not considered
+    If *play_id* is not None, *play_name* and *play_title* are not considered
 
-  If *play_id* is None *AND* *play_name* is not None, *play_title* is not considered
+    If *play_id* is None *AND* *play_name* is not None, *play_title* is not considered
 
-  If *play_id* is None *AND* *play_name* is None, *play_title* should not be None, otherwise *ValueError* is raised
+    If *play_id* is None *AND* *play_name* is None, *play_title* should not be None, otherwise *ValueError* is raised
 
-  If *play_id* is None, automatic corpus detection is applied
-
+    If *play_id* is None, automatic corpus detection is applied
     ```python
     >>> play = Play('rus000160')
     >>> play = Play(play_id='rus000160')
