@@ -1,4 +1,5 @@
 import re
+import warnings
 from collections import defaultdict
 from functools import lru_cache
 
@@ -896,15 +897,25 @@ class Play(Corpus):
             self.name = self.play_id_to_play_name()[self.id]
             self.title = self.play_id_to_play_title()[self.id]
         elif play_name is not None:
-            play_names = self.play_name_to_play_id()
+            play_names = list(self.play_id_to_play_name().values())
             assert play_name in play_names, f"No such play_name {play_name} in the corpora"
+            if play_names.count(play_name) > 1:
+                warnings.warn(
+                    f'There are several plays with the play_name {play_name} in the corpora.'
+                    f' Better use a play_id. Otherwise, a random play is selected.'
+                )
             super().__init__(self.play_name_to_corpus_name()[play_name])
             self.name = play_name
             self.id = self.play_name_to_play_id()[self.name]
             self.title = self.play_id_to_play_title()[self.id]
         elif play_title is not None:
-            play_titles = self.play_title_to_play_id()
+            play_titles = list(self.play_id_to_play_title().values())
             assert play_title in play_titles, f"No such play_title {play_title} in the corpora"
+            if play_titles.count(play_title) > 1:
+                warnings.warn(
+                    f'There are several plays with the play_title {play_title} in the corpora.'
+                    f' Better use a play_id. Otherwise, a random play is selected.'
+                )
             self.id = self.play_title_to_play_id()[play_title]
             super().__init__(self.play_title_to_corpus_name()[play_title])
             self.title = play_title
@@ -1153,19 +1164,18 @@ class Play(Corpus):
             }
         """
 
-        return vars(self)
-        # return {
-        #     "id": self.id,
-        #     "title": self.title,
-        #     "subtitle": self.subtitle,
-        #     "wikidata_id": self.wikidata_id,
-        #     "authors": self.authors,
-        #     "genre": self.genre,
-        #     "source": self.source,
-        #     "year_written": self.year_written,
-        #     "year_printed": self.year_printed,
-        #     "year_premiered": self.year_premiered
-        # }
+        return {
+            "id": self.id,
+            "title": self.title,
+            "subtitle": self.subtitle,
+            "wikidata_id": self.wikidata_id,
+            "authors": self.authors,
+            "genre": self.genre,
+            "source": self.source,
+            "year_written": self.year_written,
+            "year_printed": self.year_printed,
+            "year_premiered": self.year_premiered
+        }
 
     def __str__(self):
         """Play summary in a text
@@ -1244,13 +1254,20 @@ class Character(Play):
         dictionary
             {
                 "id": "yakov",
+                "sex": "MALE",
                 ...
             }
         """
-        dct = vars(self)
-        for key in dct:
-            dct[self.lowerCamelCase_to_snake_case(key)] = dct.pop(key)
-        return dct
+        return {
+            'id': self.id,
+            'name': self.name,
+            'sex': self.sex,
+            'gender': self.gender,
+            'is_group': self.is_group,
+            'num_of_speech_acts': self.num_of_speech_acts,
+            'num_of_scenes': self.num_of_scenes,
+            'num_of_words': self.num_of_words
+        }
 
     def __str__(self):
         """Character summary in a text

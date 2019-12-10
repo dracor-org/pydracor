@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 from pydracor import DraCor, Corpus, Play, Character
 
@@ -13,7 +14,7 @@ class TestDraCorClass(unittest.TestCase):
         self.assertEqual(self.dracor.name, "DraCor API")
         self.assertEqual(self.dracor.status, "beta")
         self.assertEqual(self.dracor.existdb, "4.7.0")
-        self.assertEqual(self.dracor.version, "0.57.1")
+        self.assertEqual(self.dracor.version, "0.58.0")
 
     def test_transform_dict(self):
         self.assertEqual(
@@ -52,13 +53,13 @@ class TestDraCorClass(unittest.TestCase):
             "name": "DraCor API",
             "status": "beta",
             "existdb": "4.7.0",
-            "version": "0.57.1"
+            "version": "0.58.0"
         })
 
     def test_corpora(self):
         corpora = self.dracor.corpora()
         self.assertEqual(type(corpora), list)
-        self.assertEqual(len(corpora), 9)
+        self.assertEqual(len(corpora), len(CORPORA))
         self.assertEqual(type(corpora[0]), dict)
         self.assertEqual(
             {corpus['name'] for corpus in corpora},
@@ -69,7 +70,7 @@ class TestDraCorClass(unittest.TestCase):
 
         corpora = self.dracor.corpora(include='metrics')
         self.assertEqual(type(corpora), list)
-        self.assertEqual(len(corpora), 8)
+        self.assertEqual(len(corpora), len(CORPORA))
         self.assertEqual(type(corpora[0]), dict)
         self.assertTrue('metrics' in corpora[0])
 
@@ -96,8 +97,13 @@ class TestDraCorClass(unittest.TestCase):
             {
                 corpus: f'{lang} Drama Corpus'
                 for corpus, lang in
-                zip(CORPORA, ['Calderón', 'German', 'Greek', 'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish',
-                              'Alsatian'])
+                zip(
+                    CORPORA,
+                    [
+                        'Alsatian', 'Calderón', 'German', 'Greek', 'Roman', 'Russian',
+                        'Shakespeare', 'Spanish', 'Swedish'
+                    ]
+                )
             }
         )
 
@@ -154,6 +160,37 @@ class TestDraCorClass(unittest.TestCase):
         </result>
     </results>
 </sparql>"""
+        )
+
+    def test_summary(self):
+        dracor_summary = self.dracor.summary()
+        self.assertIsInstance(dracor_summary, dict)
+        self.assertEqual(
+            dracor_summary, {
+                "name": "DraCor API",
+                "status": "beta",
+                "existdb": "4.7.0",
+                "version": "0.58.0",
+                "corpuses_full_names": [
+                    "Alsatian Drama Corpus", "Calderón Drama Corpus", "German Drama Corpus",
+                    "Greek Drama Corpus", "Roman Drama Corpus", "Russian Drama Corpus",
+                    "Shakespeare Drama Corpus", "Spanish Drama Corpus", "Swedish Drama Corpus"
+                ],
+                "corpuses_abbreviations": CORPORA,
+                "number_of_corpuses": len(CORPORA),
+            }
+        )
+
+    def test_str(self):
+        self.assertEqual(
+            str(self.dracor),
+            f"Name: DraCor API\n"
+            f"Status: beta\n"
+            f"Existdb: 4.7.0\n"
+            f"Version: 0.58.0\n"
+            f"Corpuses (full names): Alsatian Drama Corpus, Calderón Drama Corpus, German Drama Corpus, Greek Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus\n"
+            f"Corpuses (abbreviations): als, cal, ger, greek, rom, rus, shake, span, swe\n"
+            f"Number of corpuses: {len(CORPORA)}\n"
         )
 
 
@@ -367,14 +404,29 @@ class TestPlayClass(unittest.TestCase):
 
     def test_init_play_name(self):
         self.assertRaises(AssertionError, Play, play_name='nonexistent_play_name')
-
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            play_name = 'avenarius-faust'
+            Play(play_name=play_name)
+            self.assertEqual(len(w), 0)
         play_name = 'ostrovsky-dohodnoe-mesto'
         play = Play(play_name=play_name)
         self.play_test(play)
 
     def test_init_play_title(self):
         self.assertRaises(AssertionError, Play, play_title='nonexistent_play_title')
-
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            play_title = 'Faust'
+            Play(play_title=play_title)
+            self.assertEqual(len(w), 1)
+            w = w[-1]
+            assert issubclass(w.category, UserWarning)
+            self.assertEqual(
+                str(w.message),
+                f'There are several plays with the play_title {play_title} in the corpora.'
+                f' Better use a play_id. Otherwise, a random play is selected.'
+            )
         play_title = 'Доходное место'
         play = Play(play_title=play_title)
         self.play_test(play)
@@ -445,8 +497,8 @@ class TestPlayClass(unittest.TestCase):
         self.assertIsInstance(play_spoken_text, str)
         self.assertEqual(len(play_spoken_text.split('\n')), 934)
         self.assertEqual(len(self.play.spoken_text(gender='MALE').split('\n')), 576)
-        self.assertEqual(len(self.play.spoken_text(gender='FEMALE').split('\n')), 358)
-        self.assertEqual(len(self.play.spoken_text(gender='UNKNOWN').split('\n')), 0)
+        self.assertEqual(len(self.play.spoken_text(gender='FEMALE').split('\n')), 354)
+        self.assertEqual(len(self.play.spoken_text(gender='UNKNOWN').split('\n')), 1)
 
     def test_spoken_text_by_character(self):
         play_spoken_text_by_character = self.play.spoken_text_by_character()
@@ -467,7 +519,21 @@ class TestPlayClass(unittest.TestCase):
     def test_summary(self):
         play_summary = self.play.summary()
         self.assertIsInstance(play_summary, dict)
-        self.assertEqual(play_summary['year_written'], self.play.year_written)
+        self.assertEqual(
+            play_summary,
+            {
+                "id": play_summary['id'],
+                "title": play_summary['title'],
+                "subtitle": play_summary['subtitle'],
+                "wikidata_id": play_summary['wikidata_id'],
+                "authors": play_summary['authors'],
+                "genre": play_summary['genre'],
+                "source": play_summary['source'],
+                "year_written": play_summary['year_written'],
+                "year_printed": play_summary['year_printed'],
+                "year_premiered": play_summary['year_premiered']
+            }
+        )
 
     def test_str(self):
         self.assertEqual(
@@ -500,14 +566,19 @@ class TestCharacterClass(unittest.TestCase):
 
     def test_summary(self):
         character_summary = self.character.summary()
-        self.assertEqual(character_summary['id'], 'yakov')
-        self.assertEqual(character_summary['name'], 'Яков')
-        self.assertEqual(character_summary['sex'], 'MALE')
-        self.assertEqual(character_summary['gender'], 'MALE')
-        self.assertEqual(character_summary['is_group'], False)
-        self.assertEqual(character_summary['num_of_speech_acts'], 192)
-        self.assertEqual(character_summary['num_of_scenes'], 5)
-        self.assertEqual(character_summary['num_of_words'], 2713)
+        self.assertEqual(
+            character_summary,
+            {
+                'id': 'yakov',
+                'name': 'Яков',
+                'sex': 'MALE',
+                'gender': 'MALE',
+                'is_group': False,
+                'num_of_speech_acts': 192,
+                'num_of_scenes': 5,
+                'num_of_words': 2713
+            }
+        )
 
     def test_str(self):
         self.assertEqual(
