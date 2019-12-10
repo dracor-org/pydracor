@@ -1,4 +1,4 @@
-# PyDraCcor
+# PyDraCor
 
 PyDraCor is a Python package which provides access to the DraCor API.
 
@@ -16,6 +16,13 @@ PyDraCor is a Python package which provides access to the DraCor API.
     > A class used to represent a Character of a Play.
 
 ## Code examples
+
+### Import all classes
+
+```python
+>>> from pydracor import *
+```
+
 ### Dracor
   - Initialize a *DraCor* instance
     ```python
