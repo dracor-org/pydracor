@@ -11,7 +11,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 setup(
     name='pydracor',
     packages=['pydracor'],
-    version='0.0.0',
+    version='0.0.1',
     license='mit',
     description='Python package which provides access to the DraCor API.',
     long_description=long_description,
@@ -19,7 +19,7 @@ setup(
     author='Eduard Grigoriev',
     author_email='happypuffin7@gmail.com',
     url='https://github.com/dracor-org/pydracor',
-    download_url='https://github.com/dracor-org/pydracor/archive/v0.0.0.tar.gz',
+    download_url='https://github.com/dracor-org/pydracor/archive/pydracor-v0.0.1.tar.gz',
     keywords=['drama corpus', 'drama', 'corpus', 'pydracor', 'dracor', 'api', 'wrapper'],
     install_requires=[
         'matplotlib',
