@@ -2,6 +2,10 @@
 
 PyDraCor is a Python package which provides access to the DraCor API.
 
+## Acknowledgment:
+
+The development of this package was supported by Computational Literary Studies Infrastructure (CLS INFRA). CLS INFRA has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 101004984.
+
 ## Classes
   - *DraCor* 
     > Base class used to represent Drama Corpus entity.
