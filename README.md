@@ -1,6 +1,6 @@
-# PyDraCor
+# pydracor
 
-PyDraCor is a Python package which provides access to the DraCor API.
+pydracor is a Python package which provides access to the [DraCor API](https://dracor.org/doc/api).
 
 ## Acknowledgment:
 
@@ -9,10 +9,10 @@ The development of this package was supported by Computational Literary Studies 
 ## Classes
   - *DraCor* 
     > Base class used to represent Drama Corpus entity.
-    > DraCor consists of Corpuses.
+    > DraCor consists of Corpora.
   - *Corpus*
     > A class used to represent a Corpus of DraCor.
-    > Corpus (*cal*/*ger*/*greek*/*rom*/*rus*/*shake*/*span*/*swe*) consists of plays.
+    > Corpus (*als*/*bash*/*cal*/*fre*/*ger*/*gersh*/*greek*/*hun*/*ita*/*rom*/*rus*/*shake*/*span*/*swe*/*tat*) consists of plays.
   - *Play*
     > A class used to represent a Play of a Corpus.
     > Play consists of Characters.
@@ -71,7 +71,7 @@ The development of this package was supported by Computational Literary Studies 
     ```
   - Submit SPARQL queries with query parameter
     ```python
-    >>> dracor.sparql('SELECT * WHERE {?s ?p ?o} LIMIT 1')
+    >>> dracor.sparql("PREFIX urn: <http://fliqz.com/> SELECT *  FROM <urn:x-arq:UnionGraph> WHERE {?sub ?pred ?obj .} LIMIT 1")
     ```
 ### Corpus
   - Initialize a *Corpus* instance

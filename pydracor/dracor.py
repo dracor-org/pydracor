@@ -11,20 +11,24 @@ class DraCor:
     """
     Base class used to represent Drama Corpus entity.
 
-    DraCor consists of Corpuses.
+    DraCor consists of Corpora.
 
     Attributes
     ----------
     _base_url : str
         a base API url
+    _sparql_url : str
+        a URL to post SPARQL queries to
     """
 
     _base_url = 'https://dracor.org/api/'
+    _sparql_url = 'https://dracor.org/fuseki/sparql'
 
     def __init__(self):
         """Set name, status, existdb and version attributes from dracor_info method
         """
 
+        #TODO: set each attribute with check? 
         info = self.dracor_info()
         for key in info:
             setattr(self, key, info[key])
@@ -412,8 +416,35 @@ class DraCor:
         string
             result xml
         """
+        response = requests.post(self._sparql_url, data={'query':query}, headers={"accept": "application/sparql-results+xml"})
+        response.raise_for_status()
+        result = response.text
+        return result
+    
+    @lru_cache()
+    def plays_by_character_wikidata_id(self, wikidata_id):
+        """List plays having a character identified by Wikidata ID
+           
+        
+        Parameters
+        ----------
+        wikidata_id : str
+            The wikidata id of a character
 
-        return self.make_get_text_request(f"{self._base_url}/sparql?query={query}")
+        Returns
+        -------
+        list
+            [
+              {
+                "id": "ger000311",
+                "title": "Maria Stuart",
+                ...
+              },
+              ...
+            ]
+        """
+        return self.make_get_json_request(f"{self._base_url}/character/{wikidata_id}")
+
 
     @lru_cache()
     def summary(self):
@@ -453,9 +484,9 @@ class DraCor:
             Status: beta
             Existdb: 4.7.0
             Version: 0.57.1
-            Corpuses (full names): Calderón Drama Corpus, German Drama Corpus, Greek Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus
-            Corpuses (abbreviations): cal, ger, greek, rom, rus, shake, span, swe
-            Number of corpuses: 8"
+            Corpora (full names): Calderón Drama Corpus, German Drama Corpus, Greek Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus
+            Corpora (abbreviations): cal, ger, greek, rom, rus, shake, span, swe
+            Number of corpora: 8"
         """
 
         info = self.summary()
@@ -573,13 +604,14 @@ class Corpus(DraCor):
         -------
         dictionary
             {
-                'rus000138': 1913,
+                'rus000138': '1913',
+                'rus000192': '1936/1939'
                 ...
             }
         """
 
         return {
-            play['id']: (int(play['written_year']) if play['written_year'] else play['written_year'])
+            play['id']: play['written_year']
             for play in self.corpus_info()['dramas']
         }
 
@@ -593,13 +625,13 @@ class Corpus(DraCor):
         -------
         dictionary
             {
-                'rus000138': 1913,
+                'ger000002': '1762/1763',
                 ...
             }
         """
 
         return {
-            play['id']: (int(play['premiere_year']) if play['premiere_year'] else play['premiere_year'])
+            play['id']: play['premiere_year']
             for play in self.corpus_info()['dramas']
         }
 
@@ -613,16 +645,35 @@ class Corpus(DraCor):
         -------
         dictionary
             {
-                'rus000138': 1913,
+                'fre000034': '1547/1557',
                 ...
             }
         """
 
         return {
-            play['id']: (int(play['print_year']) if play['print_year'] else play['print_year'])
+            play['id']: play['print_year']
             for play in self.corpus_info()['dramas']
         }
 
+    @lru_cache()
+    def normalized_years(self):
+        """Map play id to the normalized year.
+
+        Returns None if the print normalized is unknown.
+
+        Returns
+        -------
+        dictionary
+            {
+                'fre000034': 1512,
+                ...
+            }
+        """
+
+        return {
+            play['id']: (int(play['year_normalized']) if play['year_normalized'] else play['year_normalized'])
+            for play in self.corpus_info()['dramas']
+        }
     @lru_cache()
     def metadata(self):
         """List of metadata for all plays in a corpus.
@@ -642,7 +693,22 @@ class Corpus(DraCor):
         """
 
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/metadata")
+    
+    @property
+    @lru_cache()
+    def metdata_csv(self):
+        """Get metadata for all plays in corpus as CSV
 
+        Returns
+        -------
+        string
+            csv representation of a play
+        """
+
+        return self.make_get_text_request(
+            f"{self._base_url}/corpora/{self.corpus_name}/metadata/csv")
+    
+    #TODO: Filtering works on strings right now - make more predictable 
     @lru_cache()
     def filter(self, **kwargs):
         """Filter Plays of a Corpus.
@@ -669,6 +735,7 @@ class Corpus(DraCor):
         """
 
         plays = self.corpus_info()['dramas']
+        fields = set([field_name for play_entry in plays for field_name in play_entry.keys()])
         for kwarg, value in kwargs.items():
             if value is not None:
                 value = str(value)
@@ -677,7 +744,7 @@ class Corpus(DraCor):
             field, relation = kwarg.rsplit('__', maxsplit=1)
             full_field = field
             field = full_field.split('__')[0]
-            if plays and field not in plays[0]:
+            if plays and field not in fields:
                 raise ValueError(f"Incorrect argument {kwarg} as it contains nonexistent field {field}")
             correct_plays = []
             for play in plays:
@@ -691,6 +758,7 @@ class Corpus(DraCor):
                         field_value = field_value[full_field.split('__')[1].lower()]
                 if field_value is None:
                     continue
+                field_value = str(field_value)
                 was_error = False
                 if relation == 'eq':
                     if field_value != value:
@@ -809,23 +877,25 @@ class Corpus(DraCor):
                 "Corpus title": "German Drama Corpus",
                 "Corpus id": "ger",
                 "Repository": "https://github.com/dracor-org/gerdracor",
-                "Written years": [1730, 1932],
-                "Premiere years": [1731, 1963],
-                "Years of the first printing": [1732, 1955],
+                "Written years": ["1730", "1932"],
+                "Premiere years": ["1731", "1963"],
+                "Years of the first printing": ["1732", "1955"],
                 "Number of plays in the corpus": 474
             }
         """
 
-        written_years = [written_year for written_year in self.written_years().values() if written_year]
-        premiere_years = [premiere_year for premiere_year in self.premiere_years().values() if premiere_year]
-        print_years = [print_year for print_year in self.print_years().values() if print_year]
+        written_years = sorted([written_year for written_year in self.written_years().values() if written_year])
+        premiere_years = sorted([premiere_year for premiere_year in self.premiere_years().values() if premiere_year])
+        print_years = sorted([print_year for print_year in self.print_years().values() if print_year])
+        normalized_years = [normalized_year for normalized_year in self.normalized_years().values() if normalized_year]
         return {
             'Corpus title': self.title,
             'Corpus id': self.corpus_name,
             'Repository': self.repository,
-            'Written years': [min(written_years), max(written_years)],
-            'Premiere years': [min(premiere_years), max(premiere_years)],
-            'Years of the first printing': [min(print_years), max(print_years)],
+            'Written years': [written_years[0], written_years[-1]],
+            'Premiere years': [premiere_years[0], premiere_years[-1]],
+            'Years of the first printing': [print_years[0], print_years[-1]],
+            'Normalized years': [min(normalized_years), max(normalized_years)],
             'Number of plays in the corpus': self.num_of_plays,
         }
 
@@ -847,6 +917,7 @@ class Corpus(DraCor):
         return f"Written years: {info['Written years'][0]} - {info['Written years'][1]}\n" \
                f"Premiere years: {info['Premiere years'][0]} - {info['Premiere years'][1]}\n" \
                f"Years of the first printing: {info['Years of the first printing'][0]} - {info['Years of the first printing'][1]}\n" \
+               f"Normalized years: {info['Normalized years'][0]} - {info['Normalized years'][1]}\n" \
                f"{info['Number of plays in the corpus']} plays in {info['Corpus title']}\n" \
                f"Corpus id: {info['Corpus id']}\n" \
                f"repository: {info['Repository']}\n"
@@ -980,6 +1051,21 @@ class Play(Corpus):
 
     @property
     @lru_cache()
+    def cast_csv(self):
+        """Get a list of characters of a play (CSV).
+
+        Returns
+        -------
+        string
+            csv representation of the list of characters for a single play
+        """
+
+        return self.make_get_text_request(
+            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/cast/csv"
+        )
+
+    @property
+    @lru_cache()
     def num_of_male_characters(self):
         """Get the number of male characters in a play.
 
@@ -1071,6 +1157,50 @@ class Play(Corpus):
             f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/networkdata/gexf"
         )
 
+    @property
+    @lru_cache()
+    def relations_csv(self):
+        """Get relation data of a play as CSV.
+
+        Returns
+        -------
+        string
+            csv representation of a play
+        """
+
+        return self.make_get_text_request(
+            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/csv"
+        )
+
+    @property
+    @lru_cache()
+    def relations_gexf(self):
+        """Get relation data of a play as GEXF.
+
+        Returns
+        -------
+        string
+            gexf representation of a play
+        """
+
+        return self.make_get_text_request(
+            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/gexf"
+        )
+
+    @property
+    @lru_cache()
+    def relations_graphml(self):
+        """Get relation data of a play as GRAPHML.
+
+        Returns
+        -------
+        string
+            graphml representation of a play
+        """
+
+        return self.make_get_text_request(
+            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/graphml"
+        )
     @lru_cache()
     def spoken_text(self, gender=''):
         """Get spoken text of a play (excluding stage directions).
@@ -1171,10 +1301,13 @@ class Play(Corpus):
             "wikidata_id": self.wikidata_id,
             "authors": self.authors,
             "genre": self.genre,
+            "libretto": self.libretto,
             "source": self.source,
+            "original_source": self.original_source,
             "year_written": self.year_written,
             "year_printed": self.year_printed,
-            "year_premiered": self.year_premiered
+            "year_premiered": self.year_premiered,
+            "year_normalized": self.year_normalized
         }
 
     def __str__(self):
@@ -1187,20 +1320,26 @@ class Play(Corpus):
             Title: ...
             Subtitle: ...
             Genre: ...
+            Libretto: ...
             Source: ...
+            Original Source: ... 
             Year (written): ...
             Year (printed): ...
-            Year (premiered): ..."
+            Year (premiered): ...
+            Year (normalized): ..."
         """
 
-        result_string = f"Author(s): {', '.join([author['name'] + ' (' + author['key'] + ')' for author in self.authors])}\n" \
+        result_string = f"Author(s): {', '.join([author['name'] + ' (' + author['fullname'] + ')' for author in self.authors])}\n" \
                         f"Title: {self.title} ({self.id}, {self.wikidata_id})\n" \
                         f"Subtitle: {self.subtitle}\n" \
                         f"Genre: {self.genre}\n" \
+                        f"Libretto: {self.libretto}\n" \
                         f"Source: {self.source['name']} ({self.source['url']})\n" \
+                        f"Original Source: {self.original_source}\n" \
                         f"Year (written): {self.year_written}\n" \
                         f"Year (printed): {self.year_printed}\n" \
-                        f"Year (premiered): {self.year_premiered}\n"
+                        f"Year (premiered): {self.year_premiered}\n" \
+                        f"Year (normalized): {self.year_normalized}\n"
         return result_string
 
 
