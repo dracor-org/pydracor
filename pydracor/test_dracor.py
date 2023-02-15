@@ -1,9 +1,15 @@
+#!/usr/bin/env/python
+
+"""
+Results for tests dating 2023-01-30
+"""
+
 import unittest
 import warnings
 
 from pydracor import DraCor, Corpus, Play, Character
 
-CORPORA = sorted(['rus', 'ger', 'shake', 'rom', 'span', 'greek', 'swe', 'cal', 'als'])
+CORPORA = sorted(['als', 'bash', 'cal', 'fre', 'ger', 'gersh', 'greek', 'hun', 'ita', 'rom', 'rus', 'shake', 'span', 'swe', 'tat'])
 
 
 class TestDraCorClass(unittest.TestCase):
@@ -13,8 +19,8 @@ class TestDraCorClass(unittest.TestCase):
     def test_init(self):
         self.assertEqual(self.dracor.name, "DraCor API")
         self.assertEqual(self.dracor.status, "beta")
-        self.assertEqual(self.dracor.existdb, "4.7.0")
-        self.assertEqual(self.dracor.version, "0.58.0")
+        self.assertEqual(self.dracor.existdb, "6.0.1")
+        self.assertEqual(self.dracor.version, "0.87.1")
 
     def test_transform_dict(self):
         self.assertEqual(
@@ -49,12 +55,11 @@ class TestDraCorClass(unittest.TestCase):
         self.assertEqual(f('ab_cd_efghi_jkl'), 'abCdEfghiJkl')
 
     def test_dracor_info(self):
-        self.assertEqual(self.dracor.dracor_info(), {
-            "name": "DraCor API",
-            "status": "beta",
-            "existdb": "4.7.0",
-            "version": "0.58.0"
-        })
+        self.assertEqual(self.dracor.dracor_info(),{
+            'name': 'DraCor API',
+            'version': '0.87.1',
+            'status': 'beta',
+            'existdb': '6.0.1'})
 
     def test_corpora(self):
         corpora = self.dracor.corpora()
@@ -100,8 +105,11 @@ class TestDraCorClass(unittest.TestCase):
                 zip(
                     CORPORA,
                     [
-                        'Alsatian', 'Calderón', 'German', 'Greek', 'Roman', 'Russian',
-                        'Shakespeare', 'Spanish', 'Swedish'
+                        'Alsatian', 'Bashkir', 'Calderón', 'French', 'German', 
+                        'German Shakespeare', 'Greek', 'Hungarian', 'Italian', 
+                        'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish', 
+                        'Tatar'
+
                     ]
                 )
             }
@@ -139,28 +147,46 @@ class TestDraCorClass(unittest.TestCase):
 
     def test_sparql(self):
         self.assertEqual(
-            self.dracor.sparql('SELECT * WHERE {?s ?p ?o} LIMIT 1'),
-            """<sparql xmlns="http://www.w3.org/2005/sparql-results#">
-    <head>
-        <variable name="s"/>
-        <variable name="p"/>
-        <variable name="o"/>
-    </head>
-    <results>
-        <result>
-            <binding name="s">
-                <uri>https://dracor.org/id/rus000137</uri>
-            </binding>
-            <binding name="p">
-                <uri>http://www.w3.org/2002/07/owl#sameAs</uri>
-            </binding>
-            <binding name="o">
-                <uri>http://www.wikidata.org/entity/Q59355429</uri>
-            </binding>
-        </result>
-    </results>
-</sparql>"""
-        )
+            self.dracor.sparql("PREFIX urn: <http://fliqz.com/> SELECT *  FROM <urn:x-arq:UnionGraph> WHERE {?sub ?pred ?obj .} LIMIT 1"),"""<?xml version="1.0"?>
+<sparql xmlns="http://www.w3.org/2005/sparql-results#">
+  <head>
+    <variable name="sub"/>
+    <variable name="pred"/>
+    <variable name="obj"/>
+  </head>
+  <results>
+    <result>
+      <binding name="sub">
+        <uri>https://dracor.org/entity/als000001</uri>
+      </binding>
+      <binding name="pred">
+        <uri>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</uri>
+      </binding>
+      <binding name="obj">
+        <uri>http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object</uri>
+      </binding>
+    </result>
+  </results>
+</sparql>\n""")
+
+    def test_plays_by_character_wikidata_id(self):
+        self.assertEqual(
+                self.dracor.plays_by_character_wikidata_id("Q131412"),[
+                    {
+                        'id': 'ger000311',
+                        'uri': 'https://dracor.org/id/ger000311',
+                        'title': 'Maria Stuart',
+                        'authors': ['Friedrich Schiller'],
+                        'character_name': 'Maria'
+                        },
+                    {
+                        'id': 'ita000009',
+                        'uri': 'https://dracor.org/id/ita000009',
+                        'title': 'Maria Stuarda',
+                        'authors': ['Vittorio Alfieri'],
+                        'character_name': 'Maria'
+                        }
+                    ])
 
     def test_summary(self):
         dracor_summary = self.dracor.summary()
@@ -169,12 +195,13 @@ class TestDraCorClass(unittest.TestCase):
             dracor_summary, {
                 "name": "DraCor API",
                 "status": "beta",
-                "existdb": "4.7.0",
-                "version": "0.58.0",
+                "existdb": "6.0.1",
+                "version": "0.87.1",
                 "corpuses_full_names": [
-                    "Alsatian Drama Corpus", "Calderón Drama Corpus", "German Drama Corpus",
-                    "Greek Drama Corpus", "Roman Drama Corpus", "Russian Drama Corpus",
-                    "Shakespeare Drama Corpus", "Spanish Drama Corpus", "Swedish Drama Corpus"
+                    'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus', 
+                    'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus', 
+                    'Hungarian Drama Corpus', 'Italian Drama Corpus', 'Roman Drama Corpus', 'Russian Drama Corpus', 
+                    'Shakespeare Drama Corpus', 'Spanish Drama Corpus', 'Swedish Drama Corpus', 'Tatar Drama Corpus'
                 ],
                 "corpuses_abbreviations": CORPORA,
                 "number_of_corpuses": len(CORPORA),
@@ -186,18 +213,18 @@ class TestDraCorClass(unittest.TestCase):
             str(self.dracor),
             f"Name: DraCor API\n"
             f"Status: beta\n"
-            f"Existdb: 4.7.0\n"
-            f"Version: 0.58.0\n"
-            f"Corpuses (full names): Alsatian Drama Corpus, Calderón Drama Corpus, German Drama Corpus, Greek Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus\n"
-            f"Corpuses (abbreviations): als, cal, ger, greek, rom, rus, shake, span, swe\n"
-            f"Number of corpuses: {len(CORPORA)}\n"
+            f"Existdb: 6.0.1\n"
+            f"Version: 0.87.1\n"
+            f"Corpuses (full names): Alsatian Drama Corpus, Bashkir Drama Corpus, Calderón Drama Corpus, French Drama Corpus, German Drama Corpus, German Shakespeare Drama Corpus, Greek Drama Corpus, Hungarian Drama Corpus, Italian Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus, Tatar Drama Corpus\n"
+            f"Corpuses (abbreviations): als, bash, cal, fre, ger, gersh, greek, hun, ita, rom, rus, shake, span, swe, tat\n"
+            f"Number of corpuses: 15\n"
         )
 
 
 class TestCorpusClass(unittest.TestCase):
     maxDiff = None
     corpus = Corpus('rus')
-    num_of_plays = 210
+    num_of_plays = 212
 
     def test_init(self):
         self.assertRaises(AssertionError, Corpus, 'nonexistent_corpusname')
@@ -233,15 +260,20 @@ class TestCorpusClass(unittest.TestCase):
     def test_written_years(self):
         dct = self.corpus.written_years()
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
-        self.assertEqual(dct['rus000138'], 1913)
+        self.assertEqual(dct['rus000138'], '1913')
 
     def test_premiere_years(self):
         dct = self.corpus.premiere_years()
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
-        self.assertEqual(dct['rus000138'], 1913)
+        self.assertEqual(dct['rus000138'], '1913')
 
     def test_print_years(self):
         dct = self.corpus.print_years()
+        self.assertEqual(set(dct), set(self.corpus.play_ids()))
+        self.assertEqual(dct['rus000138'], '1913')
+
+    def test_normalized_years(self):
+        dct = self.corpus.normalized_years()
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
         self.assertEqual(dct['rus000138'], 1913)
 
@@ -256,6 +288,7 @@ class TestCorpusClass(unittest.TestCase):
         self.assertEqual(lst[166]['size'], 12)
         self.assertEqual(lst[166]['num_of_speakers_male'], 5)
 
+
     def test_filter(self):
         self.assertRaises(
             ValueError, self.corpus.filter, wikidata_id__iecaxt='Q1989636'
@@ -266,7 +299,6 @@ class TestCorpusClass(unittest.TestCase):
         self.assertRaises(
             ValueError, self.corpus.filter, wikidata_id_iexact='Q1989636'
         )
-
         lst = self.corpus.filter(written_year__eq=1913, network_size__lt=20)
         self.assertEqual(set(lst), {'rus000137', 'rus000046'})
 
@@ -274,7 +306,6 @@ class TestCorpusClass(unittest.TestCase):
             print_year__lt=1850, source__icontains='lib.ru', premiere_year__gt=1845,
         )
         self.assertEqual(set(lst), {'rus000007', 'rus000189'})
-
         lst = self.corpus.filter(
             id__in=frozenset(f"rus000{num:03d}" for num in range(0, 250, 2)),
             subtitle__icontains='комедия',
@@ -313,12 +344,13 @@ class TestCorpusClass(unittest.TestCase):
         )
         self.assertEqual(set(lst), {'rus000119', 'rus000118'})
 
+
     def test_authors_summary(self):
         summary = self.corpus.authors_summary(num_of_authors=10)
         self.assertEqual(len(summary), 10)
         self.assertEqual(summary[0][0], 'Островский, Александр Николаевич')
         self.assertEqual(summary, [
-            ('Островский, Александр Николаевич', 37),
+            ('Островский, Александр Николаевич', 38),
             ('Сумароков, Александр Петрович', 14),
             ('Чехов, Антон Павлович', 14),
             ('Булгаков, Михаил Афанасьевич', 10),
@@ -334,9 +366,9 @@ class TestCorpusClass(unittest.TestCase):
         num_of_authors = 5
         self.assertEqual(
             self.corpus.authors_summary_str(num_of_authors=num_of_authors),
-            f"There are 56 authors in Russian Drama Corpus\n\n"
+            f"There are 57 authors in Russian Drama Corpus\n\n"
             f"Top {num_of_authors} authors of the Corpus:\n"
-            f"37 - Островский, Александр Николаевич\n"
+            f"38 - Островский, Александр Николаевич\n"
             f"14 - Сумароков, Александр Петрович\n"
             f"14 - Чехов, Антон Павлович\n"
             f"10 - Булгаков, Михаил Афанасьевич\n"
@@ -350,10 +382,11 @@ class TestCorpusClass(unittest.TestCase):
                 'Corpus title': 'Russian Drama Corpus',
                 'Corpus id': 'rus',
                 'Repository': 'https://github.com/dracor-org/rusdracor',
-                'Written years': [1747, 1940],
-                'Premiere years': [1750, 1992],
-                'Years of the first printing': [1747, 1986],
-                'Number of plays in the corpus': 210
+                'Written years': ['1747', '1940'],
+                'Premiere years': ['1750', '1992'],
+                'Years of the first printing': ['1747', '1986'],
+                'Normalized years' : [1747, 1947],
+                'Number of plays in the corpus': 212
             }
         )
 
@@ -363,7 +396,8 @@ class TestCorpusClass(unittest.TestCase):
             f'Written years: 1747 - 1940\n'
             f'Premiere years: 1750 - 1992\n'
             f'Years of the first printing: 1747 - 1986\n'
-            f'210 plays in Russian Drama Corpus\n'
+            f'Normalized years: 1747 - 1947\n'
+            f'212 plays in Russian Drama Corpus\n'
             f'Corpus id: rus\n'
             f'repository: https://github.com/dracor-org/rusdracor\n'
         )
@@ -380,18 +414,24 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(play.title, 'Доходное место')
         self.assertTrue(hasattr(play, 'segments'))
         self.assertEqual(len(play.segments), 38)
-        self.assertEqual(play.genre, 'comedy')
+        self.assertEqual(play.genre, 'Comedy')
         self.assertEqual(play.authors, [{
-            "name": "Островский, Александр Николаевич",
-            "key": "wikidata:Q171976"
-        }])
-        self.assertEqual(play.year_printed, 1856)
+            'name': 'Островский, Александр Николаевич',
+            'fullname': 'Александр Николаевич Островский',
+            'shortname': 'Островский',
+            'refs': [{'ref': 'Q171976', 'type': 'wikidata'}],
+            'fullname_en': 'Alexander Ostrovsky',
+            'name_en': 'Ostrovsky, Alexander',
+            'shortname_en': 'Ostrovsky',
+            'also_known_as': ['Alexander Ostrovsky']}])
+        self.assertEqual(play.year_printed, '1856')
         self.assertTrue(hasattr(play, 'cast'))
         self.assertTrue(hasattr(play, 'authors'))
         self.assertFalse(hasattr(play, 'author'))
         self.assertTrue(hasattr(play, 'source'))
         self.assertTrue(hasattr(play, 'year_printed'))
         self.assertTrue(hasattr(play, 'original_source'))
+        self.assertTrue(hasattr(play, 'year_normalized'))
 
     def test_init_play_id(self):
         self.assertRaises(ValueError, Play)
@@ -441,12 +481,16 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(play_info['title'], 'Доходное место')
         self.assertTrue('segments' in play_info)
         self.assertEqual(len(play_info['segments']), 38)
-        self.assertEqual(play_info['genre'], 'comedy')
-        self.assertEqual(play_info['authors'], [{
-            "name": "Островский, Александр Николаевич",
-            "key": "wikidata:Q171976"
-        }])
-        self.assertEqual(play_info['year_printed'], 1856)
+        self.assertEqual(play_info['genre'], 'Comedy')
+        self.assertEqual(play_info['authors'], [{'name': 'Островский, Александр Николаевич',
+  'fullname': 'Александр Николаевич Островский',
+  'shortname': 'Островский',
+  'refs': [{'ref': 'Q171976', 'type': 'wikidata'}],
+  'fullname_en': 'Alexander Ostrovsky',
+  'name_en': 'Ostrovsky, Alexander',
+  'shortname_en': 'Ostrovsky',
+  'also_known_as': ['Alexander Ostrovsky']}])
+        self.assertEqual(play_info['year_printed'], '1856')
         self.assertTrue('cast' in play_info)
         self.assertTrue('authors' in play_info)
         self.assertTrue('author' in play_info)
@@ -495,10 +539,10 @@ class TestPlayClass(unittest.TestCase):
         self.assertRaises(AssertionError, self.play.spoken_text, gender='unknown_gender')
         play_spoken_text = self.play.spoken_text()
         self.assertIsInstance(play_spoken_text, str)
-        self.assertEqual(len(play_spoken_text.split('\n')), 934)
-        self.assertEqual(len(self.play.spoken_text(gender='MALE').split('\n')), 576)
-        self.assertEqual(len(self.play.spoken_text(gender='FEMALE').split('\n')), 354)
-        self.assertEqual(len(self.play.spoken_text(gender='UNKNOWN').split('\n')), 1)
+        self.assertEqual(len(play_spoken_text.split('\n')), 935)
+        self.assertEqual(len(self.play.spoken_text(gender='MALE').split('\n')), 577)
+        self.assertEqual(len(self.play.spoken_text(gender='FEMALE').split('\n')), 355)
+        self.assertEqual(len(self.play.spoken_text(gender='UNKNOWN').split('\n')), 2)
 
     def test_spoken_text_by_character(self):
         play_spoken_text_by_character = self.play.spoken_text_by_character()
@@ -528,24 +572,30 @@ class TestPlayClass(unittest.TestCase):
                 "wikidata_id": play_summary['wikidata_id'],
                 "authors": play_summary['authors'],
                 "genre": play_summary['genre'],
+                "libretto": play_summary['libretto'],
                 "source": play_summary['source'],
+                "original_source": play_summary['original_source'],
                 "year_written": play_summary['year_written'],
                 "year_printed": play_summary['year_printed'],
-                "year_premiered": play_summary['year_premiered']
+                "year_premiered": play_summary['year_premiered'],
+                "year_normalized": play_summary['year_normalized']
             }
         )
 
     def test_str(self):
         self.assertEqual(
             str(self.play),
-            f"Author(s): Островский, Александр Николаевич (wikidata:Q171976)\n"
+            f"Author(s): Островский, Александр Николаевич (Александр Николаевич Островский)\n"
             f"Title: Доходное место (rus000160, Q4167340)\n"
             f"Subtitle: Комедия в пяти действиях\n"
-            f"Genre: comedy\n"
+            f"Genre: Comedy\n"
+            f"Libretto: False\n"
             f"Source: Библиотека Максима Мошкова (lib.ru) (http://az.lib.ru/o/ostrowskij_a_n/text_0050.shtml)\n"
+            f'Original Source: Москва, Изд-во "ЭКСМО", 2004\n' 
             f"Year (written): 1856\n"
             f"Year (printed): 1856\n"
             f"Year (premiered): 1857\n"
+            f"Year (normalized): 1856\n"
         )
 
 
