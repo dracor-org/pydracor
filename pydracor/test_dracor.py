@@ -197,14 +197,14 @@ class TestDraCorClass(unittest.TestCase):
                 "status": "beta",
                 "existdb": "6.0.1",
                 "version": "0.87.1",
-                "corpuses_full_names": [
+                "corpora_full_names": [
                     'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus', 
                     'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus', 
                     'Hungarian Drama Corpus', 'Italian Drama Corpus', 'Roman Drama Corpus', 'Russian Drama Corpus', 
                     'Shakespeare Drama Corpus', 'Spanish Drama Corpus', 'Swedish Drama Corpus', 'Tatar Drama Corpus'
                 ],
-                "corpuses_abbreviations": CORPORA,
-                "number_of_corpuses": len(CORPORA),
+                "corpora_abbreviations": CORPORA,
+                "number_of_corpora": len(CORPORA),
             }
         )
 
@@ -215,9 +215,9 @@ class TestDraCorClass(unittest.TestCase):
             f"Status: beta\n"
             f"Existdb: 6.0.1\n"
             f"Version: 0.87.1\n"
-            f"Corpuses (full names): Alsatian Drama Corpus, Bashkir Drama Corpus, Calderón Drama Corpus, French Drama Corpus, German Drama Corpus, German Shakespeare Drama Corpus, Greek Drama Corpus, Hungarian Drama Corpus, Italian Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus, Tatar Drama Corpus\n"
-            f"Corpuses (abbreviations): als, bash, cal, fre, ger, gersh, greek, hun, ita, rom, rus, shake, span, swe, tat\n"
-            f"Number of corpuses: 15\n"
+            f"Corpora (full names): Alsatian Drama Corpus, Bashkir Drama Corpus, Calderón Drama Corpus, French Drama Corpus, German Drama Corpus, German Shakespeare Drama Corpus, Greek Drama Corpus, Hungarian Drama Corpus, Italian Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus, Tatar Drama Corpus\n"
+            f"Corpora (abbreviations): als, bash, cal, fre, ger, gersh, greek, hun, ita, rom, rus, shake, span, swe, tat\n"
+            f"Number of corpora: 15\n"
         )
 
 

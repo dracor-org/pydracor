@@ -458,18 +458,18 @@ class DraCor:
                 "status": "beta",
                 "existdb": "4.7.0",
                 "version": "0.57.1",
-                "corpuses_full_names": ["Calderón Drama Corpus", "German Drama Corpus", "Greek Drama Corpus", "Roman Drama Corpus", "Russian Drama Corpus", "Shakespeare Drama Corpus", "Spanish Drama Corpus", "Swedish Drama Corpus"],
-                "corpuses_abbreviations": ["cal", "ger", "greek", "rom", "rus", "shake", "span", "swe"],
-                "number_of_corpuses": 8,
+                "corpora_full_names": ["Calderón Drama Corpus", "German Drama Corpus", "Greek Drama Corpus", "Roman Drama Corpus", "Russian Drama Corpus", "Shakespeare Drama Corpus", "Spanish Drama Corpus", "Swedish Drama Corpus"],
+                "corpora_abbreviations": ["cal", "ger", "greek", "rom", "rus", "shake", "span", "swe"],
+                "number_of_corpora": 8,
             }
         """
 
         info = self.dracor_info()
         corpora_names = self.corpora_names()
         info.update({
-            "corpuses_full_names": self.corpora_titles(),
-            "corpuses_abbreviations": corpora_names,
-            "number_of_corpuses": len(corpora_names)
+            "corpora_full_names": self.corpora_titles(),
+            "corpora_abbreviations": corpora_names,
+            "number_of_corpora": len(corpora_names)
         })
         return info
 
@@ -494,9 +494,9 @@ class DraCor:
                f"Status: {info['status']}\n" \
                f"Existdb: {info['existdb']}\n" \
                f"Version: {info['version']}\n" \
-               f"Corpuses (full names): {', '.join(info['corpuses_full_names'])}\n" \
-               f"Corpuses (abbreviations): {', '.join(info['corpuses_abbreviations'])}\n" \
-               f"Number of corpuses: {info['number_of_corpuses']}\n"
+               f"Corpora (full names): {', '.join(info['corpora_full_names'])}\n" \
+               f"Corpora (abbreviations): {', '.join(info['corpora_abbreviations'])}\n" \
+               f"Number of corpora: {info['number_of_corpora']}\n"
 
 
 class Corpus(DraCor):
