@@ -288,6 +288,23 @@ class TestCorpusClass(unittest.TestCase):
         self.assertEqual(lst[166]['size'], 12)
         self.assertEqual(lst[166]['num_of_speakers_male'], 5)
 
+    def test_metadata_csv(self):
+        metadata_csv = self.corpus.metadata_csv()
+        self.assertIsInstance(metadata_csv, str)
+        metadata_csv_entries = metadata_csv.splitlines()
+        self.assertEqual(len(metadata_csv_entries), self.num_of_plays + 1)
+        self.assertEqual(metadata_csv_entries[0], ("name,id,firstAuthor,numOfCoAuthors,title,"
+                                              "subtitle,normalizedGenre,digitalSource,originalSourcePublisher,"
+                                              "originalSourcePubPlace,originalSourceYear,originalSourceNumberOfPages,"
+                                              "yearNormalized,size,libretto,averageClustering,density,averagePathLength,"
+                                              "maxDegreeIds,averageDegree,diameter,yearPremiered,yearPrinted,maxDegree,"
+                                              "numOfSpeakers,numOfSpeakersFemale,numOfSpeakersMale,numOfSpeakersUnknown,"
+                                              "numPersonGroups,numConnectedComponents,numEdges,yearWritten,numOfSegments,"
+                                              "wikipediaLinkCount,numOfActs,wordCountText,wordCountSp,wordCountStage,"
+                                              "numOfP,numOfL"))
+        self.assertEqual(metadata_csv_entries[1].split(",")[0], '"afinogenov-mashenka"')
+
+
 
     def test_filter(self):
         self.assertRaises(
@@ -509,6 +526,15 @@ class TestPlayClass(unittest.TestCase):
         self.assertIsInstance(play_cast, list)
         self.assertEqual(len(play_cast), 16)
 
+    def test_cast_csv(self):
+        play_cast_csv = self.play.cast_csv()
+        self.assertIsInstance(play_cast_csv, str)
+        play_cast_csv_entries = play_cast_csv.splitlines()
+        self.assertEqual(len(play_cast_csv_entries), 17)
+        self.assertEqual(play_cast_csv_entries[0], ("id,name,gender,isGroup,numOfScenes,"
+                                                    "numOfSpeechActs,numOfWords,wikidataId,degree,"
+                                                    "weightedDegree,betweenness,closeness,eigenvector"))
+
     def test_num_of_male_characters(self):
         self.assertEqual(self.play.num_of_male_characters, 11)
 
@@ -534,6 +560,25 @@ class TestPlayClass(unittest.TestCase):
         gexf = self.play.gexf
         self.assertIsInstance(gexf, str)
         self.assertEqual(gexf.split('\n')[0], '<?xml version="1.0" encoding="UTF-8"?>')
+    
+    def test_relations_csv(self):
+        relations_csv = self.play.relations_csv()
+        self.assertIsInstance(relations_csv, str)
+        relations_csv_entries = relations_csv.splitlines()
+        self.assertEqual(len(relations_csv_entries),6)
+        self.assertEqual(relations_csv_entries[0], 'Source,Type,Target,Label')
+    
+    def test_relations_gexf(self):
+        relations_gexf = self.play.relations_gexf()
+        self.assertIsInstance(relations_gexf, str)
+        self.assertEqual(len(relations_gexf), 6326)
+        self.assertTrue('?xml version' in relations_gexf)
+    
+    def test_relations_graphml(self):
+        relations_graphml = self.play.relations_graphml()
+        self.assertIsInstance(relations_graphml, str)
+        self.assertEqual(len(relations_graphml), 4140)
+        self.assertTrue('?xml version' in relations_graphml)
 
     def test_spoken_text(self):
         self.assertRaises(AssertionError, self.play.spoken_text, gender='unknown_gender')

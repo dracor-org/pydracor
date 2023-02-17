@@ -674,6 +674,7 @@ class Corpus(DraCor):
             play['id']: (int(play['year_normalized']) if play['year_normalized'] else play['year_normalized'])
             for play in self.corpus_info()['dramas']
         }
+
     @lru_cache()
     def metadata(self):
         """List of metadata for all plays in a corpus.
@@ -694,9 +695,8 @@ class Corpus(DraCor):
 
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/metadata")
     
-    @property
     @lru_cache()
-    def metdata_csv(self):
+    def metadata_csv(self):
         """Get metadata for all plays in corpus as CSV
 
         Returns
@@ -1049,7 +1049,6 @@ class Play(Corpus):
 
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/cast")
 
-    @property
     @lru_cache()
     def cast_csv(self):
         """Get a list of characters of a play (CSV).
@@ -1157,7 +1156,6 @@ class Play(Corpus):
             f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/networkdata/gexf"
         )
 
-    @property
     @lru_cache()
     def relations_csv(self):
         """Get relation data of a play as CSV.
@@ -1172,7 +1170,6 @@ class Play(Corpus):
             f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/csv"
         )
 
-    @property
     @lru_cache()
     def relations_gexf(self):
         """Get relation data of a play as GEXF.
@@ -1187,7 +1184,6 @@ class Play(Corpus):
             f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/gexf"
         )
 
-    @property
     @lru_cache()
     def relations_graphml(self):
         """Get relation data of a play as GRAPHML.
@@ -1201,6 +1197,7 @@ class Play(Corpus):
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/graphml"
         )
+
     @lru_cache()
     def spoken_text(self, gender=''):
         """Get spoken text of a play (excluding stage directions).
