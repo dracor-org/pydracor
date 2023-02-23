@@ -19,7 +19,6 @@ setup(
     author='Eduard Grigoriev, Henny Sluyter-Gäthje',
     author_email='sluytergaeth@uni-potsdam.de, happypuffin7@gmail.com',
     url='https://github.com/dracor-org/pydracor',
-    download_url='https://github.com/dracor-org/pydracor/archive/pydracor-v0.0.1.tar.gz',
     keywords=['drama corpus', 'drama', 'corpus', 'pydracor', 'dracor', 'api', 'wrapper'],
     install_requires=[
         'requests>=2.28.2',
