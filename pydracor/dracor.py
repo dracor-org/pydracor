@@ -3,7 +3,6 @@ import warnings
 from collections import defaultdict
 from functools import lru_cache
 
-import matplotlib.pyplot as plt
 import requests
 
 
@@ -1274,10 +1273,6 @@ class Play(Corpus):
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/stage-directions-with-speakers"
         )
-
-    def plot(self):
-        plt.plot([1, 2, 3, 1.5])
-        plt.show()
 
     def summary(self):
         """Play summary
