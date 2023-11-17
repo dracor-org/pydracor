@@ -1030,7 +1030,7 @@ class Play(Corpus):
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/metrics")
 
     @lru_cache()
-    def get_cast(self):
+    def get_characters(self):
         """Get a list of characters of a play
 
         Returns
@@ -1046,10 +1046,10 @@ class Play(Corpus):
             ]
         """
 
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/cast")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters")
 
     @lru_cache()
-    def cast_csv(self):
+    def characters_csv(self):
         """Get a list of characters of a play (CSV).
 
         Returns
@@ -1059,7 +1059,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/cast/csv"
+            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters/csv"
         )
 
     @property
@@ -1072,7 +1072,7 @@ class Play(Corpus):
         int
             The number of male characters in a play
         """
-        return len([character for character in self.get_cast() if character['gender'] == 'MALE'])
+        return len([character for character in self.get_characters() if character['gender'] == 'MALE'])
 
     @property
     @lru_cache()
@@ -1085,7 +1085,7 @@ class Play(Corpus):
             The number of female characters in a play
         """
 
-        return len([character for character in self.get_cast() if character['gender'] == 'FEMALE'])
+        return len([character for character in self.get_characters() if character['gender'] == 'FEMALE'])
 
     @property
     @lru_cache()
@@ -1098,7 +1098,7 @@ class Play(Corpus):
             The number of characters of unknown gender in a play
         """
 
-        return len([character for character in self.get_cast() if character['gender'] == 'UNKNOWN'])
+        return len([character for character in self.get_characters() if character['gender'] == 'UNKNOWN'])
 
     @property
     @lru_cache()
@@ -1361,18 +1361,18 @@ class Character(Play):
         """
 
         super().__init__(play_id=play_id, play_name=play_name, play_title=play_title)
-        play_cast = self.get_cast()
+        play_characters = self.get_characters()
         was_character = False
-        for i, character in enumerate(play_cast):
+        for i, character in enumerate(play_characters):
             if character['id'] == character_id:
                 was_character = True
                 break
         assert was_character, f'There is no character "{character_id}" in the play with' \
                               f'play_id "{play_id}" / play_name "{play_name}" / play_title "{play_title}"'
         self.id = character_id
-        for key in play_cast[i]:
-            setattr(self, key, play_cast[i][key])
-        dct = [elem for elem in self.cast if elem['id'] == self.id][0]
+        for key in play_characters[i]:
+            setattr(self, key, play_characters[i][key])
+        dct = [elem for elem in self.characters if elem['id'] == self.id][0]
         dct = self.transform_dict(dct)
         for key, value in dct.items():
             setattr(self, key, value)

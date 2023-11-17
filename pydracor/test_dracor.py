@@ -442,7 +442,7 @@ class TestPlayClass(unittest.TestCase):
             'shortname_en': 'Ostrovsky',
             'also_known_as': ['Alexander Ostrovsky']}])
         self.assertEqual(play.year_printed, '1856')
-        self.assertTrue(hasattr(play, 'cast'))
+        self.assertTrue(hasattr(play, 'characters'))
         self.assertTrue(hasattr(play, 'authors'))
         self.assertFalse(hasattr(play, 'author'))
         self.assertTrue(hasattr(play, 'source'))
@@ -508,7 +508,7 @@ class TestPlayClass(unittest.TestCase):
   'shortname_en': 'Ostrovsky',
   'also_known_as': ['Alexander Ostrovsky']}])
         self.assertEqual(play_info['year_printed'], '1856')
-        self.assertTrue('cast' in play_info)
+        self.assertTrue('characters' in play_info)
         self.assertTrue('authors' in play_info)
         self.assertTrue('author' in play_info)
         self.assertTrue('source' in play_info)
@@ -521,17 +521,17 @@ class TestPlayClass(unittest.TestCase):
         self.assertTrue('nodes' in metrics)
         self.assertEqual(len(metrics['nodes']), 16)
 
-    def test_get_cast(self):
-        play_cast = self.play.get_cast()
-        self.assertIsInstance(play_cast, list)
-        self.assertEqual(len(play_cast), 16)
+    def test_get_characters(self):
+        play_characters = self.play.get_characters()
+        self.assertIsInstance(play_characters, list)
+        self.assertEqual(len(play_characters), 16)
 
-    def test_cast_csv(self):
-        play_cast_csv = self.play.cast_csv()
-        self.assertIsInstance(play_cast_csv, str)
-        play_cast_csv_entries = play_cast_csv.splitlines()
-        self.assertEqual(len(play_cast_csv_entries), 17)
-        self.assertEqual(play_cast_csv_entries[0], ("id,name,gender,isGroup,numOfScenes,"
+    def test_characters_csv(self):
+        play_characters_csv = self.play.characters_csv()
+        self.assertIsInstance(play_characters_csv, str)
+        play_characters_csv_entries = play_characters_csv.splitlines()
+        self.assertEqual(len(play_characters_csv_entries), 17)
+        self.assertEqual(play_characters_csv_entries[0], ("id,name,gender,isGroup,numOfScenes,"
                                                     "numOfSpeechActs,numOfWords,wikidataId,degree,"
                                                     "weightedDegree,betweenness,closeness,eigenvector"))
 

@@ -177,7 +177,7 @@ The development of this package was supported by Computational Literary Studies 
     ```
   - Get a list of characters of a play
     ```python
-    >>> play.get_cast()
+    >>> play.get_characters()
     ```
   - Get X of a play
     ```python
