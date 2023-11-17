@@ -27,7 +27,7 @@ class DraCor:
         """Set name, status, existdb and version attributes from dracor_info method
         """
 
-        #TODO: set each attribute with check? 
+        #TODO: set each attribute with check?
         info = self.dracor_info()
         for key in info:
             setattr(self, key, info[key])
@@ -419,12 +419,12 @@ class DraCor:
         response.raise_for_status()
         result = response.text
         return result
-    
+
     @lru_cache()
     def plays_by_character_wikidata_id(self, wikidata_id):
         """List plays having a character identified by Wikidata ID
-           
-        
+
+
         Parameters
         ----------
         wikidata_id : str
@@ -693,7 +693,7 @@ class Corpus(DraCor):
         """
 
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/metadata")
-    
+
     @lru_cache()
     def metadata_csv(self):
         """Get metadata for all plays in corpus as CSV
@@ -706,8 +706,8 @@ class Corpus(DraCor):
 
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/metadata/csv")
-    
-    #TODO: Filtering works on strings right now - make more predictable 
+
+    #TODO: Filtering works on strings right now - make more predictable
     @lru_cache()
     def filter(self, **kwargs):
         """Filter Plays of a Corpus.
@@ -1314,7 +1314,7 @@ class Play(Corpus):
             Genre: ...
             Libretto: ...
             Source: ...
-            Original Source: ... 
+            Original Source: ...
             Year (written): ...
             Year (printed): ...
             Year (premiered): ...

@@ -7,7 +7,7 @@ pydracor is a Python package which provides access to the [DraCor API](https://d
 The development of this package was supported by Computational Literary Studies Infrastructure (CLS INFRA). CLS INFRA has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 101004984.
 
 ## Classes
-  - *DraCor* 
+  - *DraCor*
     > Base class used to represent Drama Corpus entity.
     > DraCor consists of Corpora.
   - *Corpus*
@@ -119,11 +119,11 @@ The development of this package was supported by Computational Literary Studies 
     >>> corpus.metadata()
     ```
   - Filter Plays of a Corpus
-  
+
     Filters are equivalent to the django filters
-  
+
     Possible relations: *eq* / *ne* / *gt* / *ge* / *lt* / *le* / *contains* / *icontains* / *exact* / *iexact* / *in*
-  
+
     Possible fields: all the attributes that the *Corpus* instance contains
     ```python
     >>> corpus.filter(written_year__eq=1913, network_size__lt=20)

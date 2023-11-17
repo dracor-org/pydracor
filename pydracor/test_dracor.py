@@ -105,9 +105,9 @@ class TestDraCorClass(unittest.TestCase):
                 zip(
                     CORPORA,
                     [
-                        'Alsatian', 'Bashkir', 'Calderón', 'French', 'German', 
-                        'German Shakespeare', 'Greek', 'Hungarian', 'Italian', 
-                        'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish', 
+                        'Alsatian', 'Bashkir', 'Calderón', 'French', 'German',
+                        'German Shakespeare', 'Greek', 'Hungarian', 'Italian',
+                        'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish',
                         'Tatar'
 
                     ]
@@ -198,9 +198,9 @@ class TestDraCorClass(unittest.TestCase):
                 "existdb": "6.0.1",
                 "version": "0.87.1",
                 "corpora_full_names": [
-                    'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus', 
-                    'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus', 
-                    'Hungarian Drama Corpus', 'Italian Drama Corpus', 'Roman Drama Corpus', 'Russian Drama Corpus', 
+                    'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus',
+                    'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus',
+                    'Hungarian Drama Corpus', 'Italian Drama Corpus', 'Roman Drama Corpus', 'Russian Drama Corpus',
                     'Shakespeare Drama Corpus', 'Spanish Drama Corpus', 'Swedish Drama Corpus', 'Tatar Drama Corpus'
                 ],
                 "corpora_abbreviations": CORPORA,
@@ -560,20 +560,20 @@ class TestPlayClass(unittest.TestCase):
         gexf = self.play.gexf
         self.assertIsInstance(gexf, str)
         self.assertEqual(gexf.split('\n')[0], '<?xml version="1.0" encoding="UTF-8"?>')
-    
+
     def test_relations_csv(self):
         relations_csv = self.play.relations_csv()
         self.assertIsInstance(relations_csv, str)
         relations_csv_entries = relations_csv.splitlines()
         self.assertEqual(len(relations_csv_entries),6)
         self.assertEqual(relations_csv_entries[0], 'Source,Type,Target,Label')
-    
+
     def test_relations_gexf(self):
         relations_gexf = self.play.relations_gexf()
         self.assertIsInstance(relations_gexf, str)
         self.assertEqual(len(relations_gexf), 6326)
         self.assertTrue('?xml version' in relations_gexf)
-    
+
     def test_relations_graphml(self):
         relations_graphml = self.play.relations_graphml()
         self.assertIsInstance(relations_graphml, str)
@@ -636,7 +636,7 @@ class TestPlayClass(unittest.TestCase):
             f"Genre: Comedy\n"
             f"Libretto: False\n"
             f"Source: Библиотека Максима Мошкова (lib.ru) (http://az.lib.ru/o/ostrowskij_a_n/text_0050.shtml)\n"
-            f'Original Source: Москва, Изд-во "ЭКСМО", 2004\n' 
+            f'Original Source: Москва, Изд-во "ЭКСМО", 2004\n'
             f"Year (written): 1856\n"
             f"Year (printed): 1856\n"
             f"Year (premiered): 1857\n"
