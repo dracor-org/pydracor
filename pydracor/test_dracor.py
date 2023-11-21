@@ -105,9 +105,9 @@ class TestDraCorClass(unittest.TestCase):
                 zip(
                     CORPORA,
                     [
-                        'Alsatian', 'Bashkir', 'Calderón', 'French', 'German', 
-                        'German Shakespeare', 'Greek', 'Hungarian', 'Italian', 
-                        'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish', 
+                        'Alsatian', 'Bashkir', 'Calderón', 'French', 'German',
+                        'German Shakespeare', 'Greek', 'Hungarian', 'Italian',
+                        'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish',
                         'Tatar'
 
                     ]
@@ -198,9 +198,9 @@ class TestDraCorClass(unittest.TestCase):
                 "existdb": "6.0.1",
                 "version": "0.87.1",
                 "corpora_full_names": [
-                    'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus', 
-                    'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus', 
-                    'Hungarian Drama Corpus', 'Italian Drama Corpus', 'Roman Drama Corpus', 'Russian Drama Corpus', 
+                    'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus',
+                    'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus',
+                    'Hungarian Drama Corpus', 'Italian Drama Corpus', 'Roman Drama Corpus', 'Russian Drama Corpus',
                     'Shakespeare Drama Corpus', 'Spanish Drama Corpus', 'Swedish Drama Corpus', 'Tatar Drama Corpus'
                 ],
                 "corpora_abbreviations": CORPORA,
@@ -442,7 +442,7 @@ class TestPlayClass(unittest.TestCase):
             'shortname_en': 'Ostrovsky',
             'also_known_as': ['Alexander Ostrovsky']}])
         self.assertEqual(play.year_printed, '1856')
-        self.assertTrue(hasattr(play, 'cast'))
+        self.assertTrue(hasattr(play, 'characters'))
         self.assertTrue(hasattr(play, 'authors'))
         self.assertFalse(hasattr(play, 'author'))
         self.assertTrue(hasattr(play, 'source'))
@@ -508,7 +508,7 @@ class TestPlayClass(unittest.TestCase):
   'shortname_en': 'Ostrovsky',
   'also_known_as': ['Alexander Ostrovsky']}])
         self.assertEqual(play_info['year_printed'], '1856')
-        self.assertTrue('cast' in play_info)
+        self.assertTrue('characters' in play_info)
         self.assertTrue('authors' in play_info)
         self.assertTrue('author' in play_info)
         self.assertTrue('source' in play_info)
@@ -521,17 +521,17 @@ class TestPlayClass(unittest.TestCase):
         self.assertTrue('nodes' in metrics)
         self.assertEqual(len(metrics['nodes']), 16)
 
-    def test_get_cast(self):
-        play_cast = self.play.get_cast()
-        self.assertIsInstance(play_cast, list)
-        self.assertEqual(len(play_cast), 16)
+    def test_get_characters(self):
+        play_characters = self.play.get_characters()
+        self.assertIsInstance(play_characters, list)
+        self.assertEqual(len(play_characters), 16)
 
-    def test_cast_csv(self):
-        play_cast_csv = self.play.cast_csv()
-        self.assertIsInstance(play_cast_csv, str)
-        play_cast_csv_entries = play_cast_csv.splitlines()
-        self.assertEqual(len(play_cast_csv_entries), 17)
-        self.assertEqual(play_cast_csv_entries[0], ("id,name,gender,isGroup,numOfScenes,"
+    def test_characters_csv(self):
+        play_characters_csv = self.play.characters_csv()
+        self.assertIsInstance(play_characters_csv, str)
+        play_characters_csv_entries = play_characters_csv.splitlines()
+        self.assertEqual(len(play_characters_csv_entries), 17)
+        self.assertEqual(play_characters_csv_entries[0], ("id,name,gender,isGroup,numOfScenes,"
                                                     "numOfSpeechActs,numOfWords,wikidataId,degree,"
                                                     "weightedDegree,betweenness,closeness,eigenvector"))
 
@@ -560,20 +560,20 @@ class TestPlayClass(unittest.TestCase):
         gexf = self.play.gexf
         self.assertIsInstance(gexf, str)
         self.assertEqual(gexf.split('\n')[0], '<?xml version="1.0" encoding="UTF-8"?>')
-    
+
     def test_relations_csv(self):
         relations_csv = self.play.relations_csv()
         self.assertIsInstance(relations_csv, str)
         relations_csv_entries = relations_csv.splitlines()
         self.assertEqual(len(relations_csv_entries),6)
         self.assertEqual(relations_csv_entries[0], 'Source,Type,Target,Label')
-    
+
     def test_relations_gexf(self):
         relations_gexf = self.play.relations_gexf()
         self.assertIsInstance(relations_gexf, str)
         self.assertEqual(len(relations_gexf), 6326)
         self.assertTrue('?xml version' in relations_gexf)
-    
+
     def test_relations_graphml(self):
         relations_graphml = self.play.relations_graphml()
         self.assertIsInstance(relations_graphml, str)
@@ -636,7 +636,7 @@ class TestPlayClass(unittest.TestCase):
             f"Genre: Comedy\n"
             f"Libretto: False\n"
             f"Source: Библиотека Максима Мошкова (lib.ru) (http://az.lib.ru/o/ostrowskij_a_n/text_0050.shtml)\n"
-            f'Original Source: Москва, Изд-во "ЭКСМО", 2004\n' 
+            f'Original Source: Москва, Изд-во "ЭКСМО", 2004\n'
             f"Year (written): 1856\n"
             f"Year (printed): 1856\n"
             f"Year (premiered): 1857\n"

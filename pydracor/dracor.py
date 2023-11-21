@@ -27,7 +27,7 @@ class DraCor:
         """Set name, status, existdb and version attributes from dracor_info method
         """
 
-        #TODO: set each attribute with check? 
+        #TODO: set each attribute with check?
         info = self.dracor_info()
         for key in info:
             setattr(self, key, info[key])
@@ -419,12 +419,12 @@ class DraCor:
         response.raise_for_status()
         result = response.text
         return result
-    
+
     @lru_cache()
     def plays_by_character_wikidata_id(self, wikidata_id):
         """List plays having a character identified by Wikidata ID
-           
-        
+
+
         Parameters
         ----------
         wikidata_id : str
@@ -693,7 +693,7 @@ class Corpus(DraCor):
         """
 
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/metadata")
-    
+
     @lru_cache()
     def metadata_csv(self):
         """Get metadata for all plays in corpus as CSV
@@ -706,8 +706,8 @@ class Corpus(DraCor):
 
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/metadata/csv")
-    
-    #TODO: Filtering works on strings right now - make more predictable 
+
+    #TODO: Filtering works on strings right now - make more predictable
     @lru_cache()
     def filter(self, **kwargs):
         """Filter Plays of a Corpus.
@@ -1030,7 +1030,7 @@ class Play(Corpus):
         return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/metrics")
 
     @lru_cache()
-    def get_cast(self):
+    def get_characters(self):
         """Get a list of characters of a play
 
         Returns
@@ -1046,10 +1046,10 @@ class Play(Corpus):
             ]
         """
 
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/cast")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters")
 
     @lru_cache()
-    def cast_csv(self):
+    def characters_csv(self):
         """Get a list of characters of a play (CSV).
 
         Returns
@@ -1059,7 +1059,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/cast/csv"
+            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters/csv"
         )
 
     @property
@@ -1072,7 +1072,7 @@ class Play(Corpus):
         int
             The number of male characters in a play
         """
-        return len([character for character in self.get_cast() if character['gender'] == 'MALE'])
+        return len([character for character in self.get_characters() if character['gender'] == 'MALE'])
 
     @property
     @lru_cache()
@@ -1085,7 +1085,7 @@ class Play(Corpus):
             The number of female characters in a play
         """
 
-        return len([character for character in self.get_cast() if character['gender'] == 'FEMALE'])
+        return len([character for character in self.get_characters() if character['gender'] == 'FEMALE'])
 
     @property
     @lru_cache()
@@ -1098,7 +1098,7 @@ class Play(Corpus):
             The number of characters of unknown gender in a play
         """
 
-        return len([character for character in self.get_cast() if character['gender'] == 'UNKNOWN'])
+        return len([character for character in self.get_characters() if character['gender'] == 'UNKNOWN'])
 
     @property
     @lru_cache()
@@ -1314,7 +1314,7 @@ class Play(Corpus):
             Genre: ...
             Libretto: ...
             Source: ...
-            Original Source: ... 
+            Original Source: ...
             Year (written): ...
             Year (printed): ...
             Year (premiered): ...
@@ -1361,18 +1361,18 @@ class Character(Play):
         """
 
         super().__init__(play_id=play_id, play_name=play_name, play_title=play_title)
-        play_cast = self.get_cast()
+        play_characters = self.get_characters()
         was_character = False
-        for i, character in enumerate(play_cast):
+        for i, character in enumerate(play_characters):
             if character['id'] == character_id:
                 was_character = True
                 break
         assert was_character, f'There is no character "{character_id}" in the play with' \
                               f'play_id "{play_id}" / play_name "{play_name}" / play_title "{play_title}"'
         self.id = character_id
-        for key in play_cast[i]:
-            setattr(self, key, play_cast[i][key])
-        dct = [elem for elem in self.cast if elem['id'] == self.id][0]
+        for key in play_characters[i]:
+            setattr(self, key, play_characters[i][key])
+        dct = [elem for elem in self.characters if elem['id'] == self.id][0]
         dct = self.transform_dict(dct)
         for key, value in dct.items():
             setattr(self, key, value)
