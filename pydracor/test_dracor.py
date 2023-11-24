@@ -24,8 +24,8 @@ class TestDraCorClass(unittest.TestCase):
 
     def test_transform_dict(self):
         self.assertEqual(
-            self.dracor.transform_dict({'dramasRus': [{'aB': 3, 'cD': 4, 'eF': [{'gH': 5}]}]}),
-            {'dramas_rus': [{'a_b': 3, 'c_d': 4, 'e_f': [{'g_h': 5}]}]}
+            self.dracor.transform_dict({'playsRus': [{'aB': 3, 'cD': 4, 'eF': [{'gH': 5}]}]}),
+            {'plays_rus': [{'a_b': 3, 'c_d': 4, 'e_f': [{'g_h': 5}]}]}
         )
         self.assertEqual(
             self.dracor.transform_dict({'abcDfg': {'tmPr': 1, 'egFr': 2}}),
@@ -232,7 +232,7 @@ class TestCorpusClass(unittest.TestCase):
         self.assertEqual(self.corpus.name, 'rus')
         self.assertEqual(self.corpus.title, 'Russian Drama Corpus')
         self.assertEqual(self.corpus.repository, 'https://github.com/dracor-org/rusdracor')
-        self.assertEqual(len(self.corpus.dramas), self.num_of_plays)
+        self.assertEqual(len(self.corpus.plays), self.num_of_plays)
         self.assertEqual(self.corpus.num_of_plays, self.num_of_plays)
 
     def test_corpus_info(self):
@@ -240,7 +240,7 @@ class TestCorpusClass(unittest.TestCase):
         self.assertEqual(dct['name'], 'rus')
         self.assertEqual(dct['title'], 'Russian Drama Corpus')
         self.assertEqual(dct['repository'], 'https://github.com/dracor-org/rusdracor')
-        self.assertEqual(len(dct['dramas']), self.num_of_plays)
+        self.assertEqual(len(dct['plays']), self.num_of_plays)
 
     def test_play_ids(self):
         play_ids = self.corpus.play_ids()
