@@ -20,7 +20,8 @@ class DraCor:
         a URL to post SPARQL queries to
     """
 
-    _base_url = 'https://dracor.org/api/'
+    #_base_url = 'https://dracor.org/api/'
+    _base_url = 'https://staging.dracor.org/api/v1'
     _sparql_url = 'https://dracor.org/fuseki/sparql'
 
     def __init__(self):
@@ -996,8 +997,6 @@ class Play(Corpus):
         info = self.play_info()
         for key in info:
             setattr(self, key, info[key])
-        if hasattr(self, 'author'):
-            delattr(self, 'author')
         metrics = self.metrics()
         for key in metrics:
             setattr(self, key, metrics[key])

@@ -511,7 +511,6 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(play_info['year_printed'], '1856')
         self.assertTrue('characters' in play_info)
         self.assertTrue('authors' in play_info)
-        self.assertTrue('author' in play_info)
         self.assertTrue('source' in play_info)
         self.assertTrue('year_printed' in play_info)
         self.assertTrue('original_source' in play_info)
