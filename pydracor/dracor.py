@@ -594,7 +594,7 @@ class Corpus(DraCor):
         return {play['id']: play['title'] for play in self.corpus_info()['plays']}
 
     @lru_cache()
-    def written_years(self):
+    def years_written(self):
         """Map play id to the written year.
 
         Returns None if the written year is unknown.
@@ -610,12 +610,12 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: play['written_year']
+            play['id']: play['year_written']
             for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
-    def premiere_years(self):
+    def years_premiered(self):
         """Map play id to the premiere year.
 
         Returns None if the premiere year is unknown.
@@ -630,12 +630,12 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: play['premiere_year']
+            play['id']: play['year_premiered']
             for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
-    def print_years(self):
+    def years_printed(self):
         """Map play id to the print year.
 
         Returns None if the print year is unknown.
@@ -650,12 +650,12 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: play['print_year']
+            play['id']: play['year_printed']
             for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
-    def normalized_years(self):
+    def years_normalized(self):
         """Map play id to the normalized year.
 
         Returns None if the print normalized is unknown.
@@ -716,7 +716,7 @@ class Corpus(DraCor):
         ----------
         kwargs
             {
-                "written_year__eq": 1913,
+                "year_written__eq": 1913,
                 "network_size__lt": 20,
                 "title__icontains": "в",
                 ...
@@ -883,18 +883,18 @@ class Corpus(DraCor):
             }
         """
 
-        written_years = sorted([written_year for written_year in self.written_years().values() if written_year])
-        premiere_years = sorted([premiere_year for premiere_year in self.premiere_years().values() if premiere_year])
-        print_years = sorted([print_year for print_year in self.print_years().values() if print_year])
-        normalized_years = [normalized_year for normalized_year in self.normalized_years().values() if normalized_year]
+        years_written = sorted([year_written for year_written in self.years_written().values() if year_written])
+        years_premiered = sorted([year_premiered for year_premiered in self.years_premiered().values() if year_premiered])
+        years_printed = sorted([year_printed for year_printed in self.years_printed().values() if year_printed])
+        years_normalized = [year_normalized for year_normalized in self.years_normalized().values() if year_normalized]
         return {
             'Corpus title': self.title,
             'Corpus id': self.corpus_name,
             'Repository': self.repository,
-            'Written years': [written_years[0], written_years[-1]],
-            'Premiere years': [premiere_years[0], premiere_years[-1]],
-            'Years of the first printing': [print_years[0], print_years[-1]],
-            'Normalized years': [min(normalized_years), max(normalized_years)],
+            'Written years': [years_written[0], years_written[-1]],
+            'Premiere years': [years_premiered[0], years_premiered[-1]],
+            'Years of the first printing': [years_printed[0], years_printed[-1]],
+            'Normalized years': [min(years_normalized), max(years_normalized)],
             'Number of plays in the corpus': self.num_of_plays,
         }
 

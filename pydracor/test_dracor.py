@@ -257,23 +257,23 @@ class TestCorpusClass(unittest.TestCase):
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
         self.assertEqual(dct['rus000138'], 'Не убий')
 
-    def test_written_years(self):
-        dct = self.corpus.written_years()
+    def test_years_written(self):
+        dct = self.corpus.years_written()
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
         self.assertEqual(dct['rus000138'], '1913')
 
-    def test_premiere_years(self):
-        dct = self.corpus.premiere_years()
+    def test_years_premiered(self):
+        dct = self.corpus.years_premiered()
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
         self.assertEqual(dct['rus000138'], '1913')
 
-    def test_print_years(self):
-        dct = self.corpus.print_years()
+    def test_years_printed(self):
+        dct = self.corpus.years_printed()
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
         self.assertEqual(dct['rus000138'], '1913')
 
-    def test_normalized_years(self):
-        dct = self.corpus.normalized_years()
+    def test_years_normalized(self):
+        dct = self.corpus.years_normalized()
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
         self.assertEqual(dct['rus000138'], 1913)
 
@@ -316,11 +316,11 @@ class TestCorpusClass(unittest.TestCase):
         self.assertRaises(
             ValueError, self.corpus.filter, wikidata_id_iexact='Q1989636'
         )
-        lst = self.corpus.filter(written_year__eq=1913, network_size__lt=20)
+        lst = self.corpus.filter(year_written__eq=1913, network_size__lt=20)
         self.assertEqual(set(lst), {'rus000137', 'rus000046'})
 
         lst = self.corpus.filter(
-            print_year__lt=1850, source__icontains='lib.ru', premiere_year__gt=1845,
+            year_printed__lt=1850, source__icontains='lib.ru', year_premiered__gt=1845,
         )
         self.assertEqual(set(lst), {'rus000007', 'rus000189'})
         lst = self.corpus.filter(
