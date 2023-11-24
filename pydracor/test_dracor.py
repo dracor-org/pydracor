@@ -188,6 +188,13 @@ class TestDraCorClass(unittest.TestCase):
                         }
                     ])
 
+    def test_play_info_by_id(self):
+        html_text_response = open("test_artefacts/play_info_by_id.txt").read().strip()
+        self.assertEqual(
+                self.dracor.play_info_by_id("ger000023"),
+                html_text_response)
+
+
     def test_summary(self):
         dracor_summary = self.dracor.summary()
         self.assertIsInstance(dracor_summary, dict)

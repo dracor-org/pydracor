@@ -445,6 +445,22 @@ class DraCor:
         """
         return self.make_get_json_request(f"{self._base_url}/character/{wikidata_id}")
 
+    @lru_cache()
+    def play_info_by_id(self, play_id):
+        """Depending on the Accept header this endpoint redirects to either the RDF representation [play-rdf],
+        the JSON meta data [play-info] or the dracor.org URL of the play identified by the id parameter.
+
+        Parameters
+        ----------
+        play_id : str
+            The id of a play: ger000023
+
+        Returns
+        -------
+        str: <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" ...
+
+        """
+        return self.make_get_text_request(f"{self._base_url}/id/{play_id}")
 
     @lru_cache()
     def summary(self):
