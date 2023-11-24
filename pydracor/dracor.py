@@ -1012,7 +1012,7 @@ class Play(Corpus):
             json
         """
 
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}")
 
     @lru_cache()
     def metrics(self):
@@ -1027,7 +1027,7 @@ class Play(Corpus):
                 ...
             }
         """
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/metrics")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/metrics")
 
     @lru_cache()
     def get_characters(self):
@@ -1046,7 +1046,7 @@ class Play(Corpus):
             ]
         """
 
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/characters")
 
     @lru_cache()
     def characters_csv(self):
@@ -1059,7 +1059,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters/csv"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/characters/csv"
         )
 
     @property
@@ -1111,7 +1111,7 @@ class Play(Corpus):
             TEI document of a single play
         """
 
-        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/tei")
+        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/tei")
 
     @property
     @lru_cache()
@@ -1124,7 +1124,7 @@ class Play(Corpus):
             rdf representation of a play
         """
 
-        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/rdf")
+        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/rdf")
 
     @property
     @lru_cache()
@@ -1138,7 +1138,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/networkdata/csv")
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/csv")
 
     @property
     @lru_cache()
@@ -1152,7 +1152,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/networkdata/gexf"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/gexf"
         )
 
     @lru_cache()
@@ -1166,7 +1166,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/csv"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/relations/csv"
         )
 
     @lru_cache()
@@ -1180,7 +1180,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/gexf"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/relations/gexf"
         )
 
     @lru_cache()
@@ -1194,7 +1194,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/graphml"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/relations/graphml"
         )
 
     @lru_cache()
@@ -1220,7 +1220,7 @@ class Play(Corpus):
         assert gender in ['', 'FEMALE', 'MALE', 'UNKNOWN'], \
             "gender parameter should be either 'MALE', 'FEMALE', 'UNKONWN' or ''"
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/spoken-text?gender={gender}"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/spoken-text?gender={gender}"
         )
 
     @lru_cache()
@@ -1243,7 +1243,7 @@ class Play(Corpus):
         """
 
         return self.make_get_json_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/spoken-text-by-character"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/spoken-text-by-character"
         )
 
     @lru_cache()
@@ -1257,7 +1257,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/stage-directions"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/stage-directions"
         )
 
     @lru_cache()
@@ -1271,7 +1271,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/stage-directions-with-speakers"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/stage-directions-with-speakers"
         )
 
     def summary(self):
