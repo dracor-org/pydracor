@@ -17,10 +17,10 @@ class TestDraCorClass(unittest.TestCase):
     dracor = DraCor()
 
     def test_init(self):
-        self.assertEqual(self.dracor.name, "DraCor API")
+        self.assertEqual(self.dracor.name, "DraCor API v1")
         self.assertEqual(self.dracor.status, "beta")
-        self.assertEqual(self.dracor.existdb, "6.0.1")
-        self.assertEqual(self.dracor.version, "0.87.1")
+        self.assertEqual(self.dracor.existdb, "6.2.0")
+        self.assertEqual(self.dracor.version, "1.0.0-beta.4")
 
     def test_transform_dict(self):
         self.assertEqual(
@@ -56,10 +56,10 @@ class TestDraCorClass(unittest.TestCase):
 
     def test_dracor_info(self):
         self.assertEqual(self.dracor.dracor_info(),{
-            'name': 'DraCor API',
-            'version': '0.87.1',
+            'name': 'DraCor API v1',
+            'version': '1.0.0-beta.4',
             'status': 'beta',
-            'existdb': '6.0.1'})
+            'existdb': '6.2.0'})
 
     def test_corpora(self):
         corpora = self.dracor.corpora()
@@ -108,7 +108,7 @@ class TestDraCorClass(unittest.TestCase):
                         'Alsatian', 'Bashkir', 'Calderón', 'French', 'German',
                         'German Shakespeare', 'Greek', 'Hungarian', 'Italian',
                         'Roman', 'Russian', 'Shakespeare', 'Spanish', 'Swedish',
-                        'Tatar'
+                        'Tatar', 'Ukrainian'
 
                     ]
                 )
@@ -195,13 +195,14 @@ class TestDraCorClass(unittest.TestCase):
             dracor_summary, {
                 "name": "DraCor API",
                 "status": "beta",
-                "existdb": "6.0.1",
-                "version": "0.87.1",
+                "existdb": "6.2.0",
+                "version": "1.0.0-beta.4",
                 "corpora_full_names": [
                     'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus',
                     'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus',
                     'Hungarian Drama Corpus', 'Italian Drama Corpus', 'Roman Drama Corpus', 'Russian Drama Corpus',
-                    'Shakespeare Drama Corpus', 'Spanish Drama Corpus', 'Swedish Drama Corpus', 'Tatar Drama Corpus'
+                    'Shakespeare Drama Corpus', 'Spanish Drama Corpus', 'Swedish Drama Corpus', 'Tatar Drama Corpus',
+                    'Ukrainian Drama Corpus'
                 ],
                 "corpora_abbreviations": CORPORA,
                 "number_of_corpora": len(CORPORA),
@@ -215,9 +216,9 @@ class TestDraCorClass(unittest.TestCase):
             f"Status: beta\n"
             f"Existdb: 6.0.1\n"
             f"Version: 0.87.1\n"
-            f"Corpora (full names): Alsatian Drama Corpus, Bashkir Drama Corpus, Calderón Drama Corpus, French Drama Corpus, German Drama Corpus, German Shakespeare Drama Corpus, Greek Drama Corpus, Hungarian Drama Corpus, Italian Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus, Tatar Drama Corpus\n"
-            f"Corpora (abbreviations): als, bash, cal, fre, ger, gersh, greek, hun, ita, rom, rus, shake, span, swe, tat\n"
-            f"Number of corpora: 15\n"
+            f"Corpora (full names): Alsatian Drama Corpus, Bashkir Drama Corpus, Calderón Drama Corpus, French Drama Corpus, German Drama Corpus, German Shakespeare Drama Corpus, Greek Drama Corpus, Hungarian Drama Corpus, Italian Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus, Tatar Drama Corpus, Ukrainian Drama Corpus\n"
+            f"Corpora (abbreviations): als, bash, cal, fre, ger, gersh, greek, hun, ita, rom, rus, shake, span, swe, tat, u\n"
+            f"Number of corpora: 16\n"
         )
 
 
