@@ -273,7 +273,7 @@ class DraCor:
         return {
             play[field]: corpus_name
             for corpus_name in self.corpora_names()
-            for play in Corpus(corpus_name).corpus_info()['dramas']
+            for play in Corpus(corpus_name).corpus_info()['plays']
         }
 
     @lru_cache()
@@ -322,7 +322,7 @@ class DraCor:
         return {
             play['id']: play[field]
             for corpus_name in self.corpora_names()
-            for play in Corpus(corpus_name).corpus_info()['dramas']
+            for play in Corpus(corpus_name).corpus_info()['plays']
         }
 
     @lru_cache()
@@ -341,7 +341,7 @@ class DraCor:
         return {
             play[field]: play['id']
             for corpus_name in self.corpora_names()
-            for play in Corpus(corpus_name).corpus_info()['dramas']
+            for play in Corpus(corpus_name).corpus_info()['plays']
         }
 
     @lru_cache()
@@ -525,7 +525,7 @@ class Corpus(DraCor):
         info = self.corpus_info()
         for key in info:
             setattr(self, key, info[key])
-        self.num_of_plays = len(info['dramas'])
+        self.num_of_plays = len(info['plays'])
 
     @lru_cache()
     def corpus_info(self):
@@ -540,7 +540,7 @@ class Corpus(DraCor):
               "name": "rus",
               "title": "Russian Drama Corpus",
               "repository": "https://github.com/dracor-org/rusdracor",
-              "dramas": [
+              "plays": [
                 {
                     ...
                 },
@@ -561,7 +561,7 @@ class Corpus(DraCor):
             ["rus000138", ...]
         """
 
-        return [play['id'] for play in self.corpus_info()['dramas']]
+        return [play['id'] for play in self.corpus_info()['plays']]
 
     @lru_cache()
     def play_names(self):
@@ -576,7 +576,7 @@ class Corpus(DraCor):
             }
         """
 
-        return {play['id']: play['name'] for play in self.corpus_info()['dramas']}
+        return {play['id']: play['name'] for play in self.corpus_info()['plays']}
 
     @lru_cache()
     def play_titles(self):
@@ -591,7 +591,7 @@ class Corpus(DraCor):
             }
         """
 
-        return {play['id']: play['title'] for play in self.corpus_info()['dramas']}
+        return {play['id']: play['title'] for play in self.corpus_info()['plays']}
 
     @lru_cache()
     def written_years(self):
@@ -611,7 +611,7 @@ class Corpus(DraCor):
 
         return {
             play['id']: play['written_year']
-            for play in self.corpus_info()['dramas']
+            for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
@@ -631,7 +631,7 @@ class Corpus(DraCor):
 
         return {
             play['id']: play['premiere_year']
-            for play in self.corpus_info()['dramas']
+            for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
@@ -651,7 +651,7 @@ class Corpus(DraCor):
 
         return {
             play['id']: play['print_year']
-            for play in self.corpus_info()['dramas']
+            for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
@@ -671,7 +671,7 @@ class Corpus(DraCor):
 
         return {
             play['id']: (int(play['year_normalized']) if play['year_normalized'] else play['year_normalized'])
-            for play in self.corpus_info()['dramas']
+            for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
@@ -733,7 +733,7 @@ class Corpus(DraCor):
             list of play ids that satisfy the conditions
         """
 
-        plays = self.corpus_info()['dramas']
+        plays = self.corpus_info()['plays']
         fields = set([field_name for play_entry in plays for field_name in play_entry.keys()])
         for kwarg, value in kwargs.items():
             if value is not None:
@@ -831,7 +831,7 @@ class Corpus(DraCor):
 
         authors = defaultdict(int)
         info = self.corpus_info()
-        for play in info['dramas']:
+        for play in info['plays']:
             for author in play['authors']:
                 authors[author['name']] += 1
         sorted_authors = sorted(authors.items(), key=lambda elem: -elem[1])
