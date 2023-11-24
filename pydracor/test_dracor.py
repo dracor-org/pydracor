@@ -431,7 +431,7 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(play.title, 'Доходное место')
         self.assertTrue(hasattr(play, 'segments'))
         self.assertEqual(len(play.segments), 38)
-        self.assertEqual(play.genre, 'Comedy')
+        self.assertEqual(play.normalized_genre, 'Comedy')
         self.assertEqual(play.authors, [{
             'name': 'Островский, Александр Николаевич',
             'fullname': 'Александр Николаевич Островский',
@@ -498,7 +498,7 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(play_info['title'], 'Доходное место')
         self.assertTrue('segments' in play_info)
         self.assertEqual(len(play_info['segments']), 38)
-        self.assertEqual(play_info['genre'], 'Comedy')
+        self.assertEqual(play_info['normalized_genre'], 'Comedy')
         self.assertEqual(play_info['authors'], [{'name': 'Островский, Александр Николаевич',
   'fullname': 'Александр Николаевич Островский',
   'shortname': 'Островский',
@@ -616,7 +616,7 @@ class TestPlayClass(unittest.TestCase):
                 "subtitle": play_summary['subtitle'],
                 "wikidata_id": play_summary['wikidata_id'],
                 "authors": play_summary['authors'],
-                "genre": play_summary['genre'],
+                "normalized_genre": play_summary['normalized_genre'],
                 "libretto": play_summary['libretto'],
                 "source": play_summary['source'],
                 "original_source": play_summary['original_source'],

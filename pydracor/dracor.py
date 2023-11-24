@@ -1292,7 +1292,7 @@ class Play(Corpus):
             "subtitle": self.subtitle,
             "wikidata_id": self.wikidata_id,
             "authors": self.authors,
-            "genre": self.genre,
+            "normalized_genre": self.normalized_genre,
             "libretto": self.libretto,
             "source": self.source,
             "original_source": self.original_source,
@@ -1324,7 +1324,7 @@ class Play(Corpus):
         result_string = f"Author(s): {', '.join([author['name'] + ' (' + author['fullname'] + ')' for author in self.authors])}\n" \
                         f"Title: {self.title} ({self.id}, {self.wikidata_id})\n" \
                         f"Subtitle: {self.subtitle}\n" \
-                        f"Genre: {self.genre}\n" \
+                        f"Genre: {self.normalized_genre}\n" \
                         f"Libretto: {self.libretto}\n" \
                         f"Source: {self.source['name']} ({self.source['url']})\n" \
                         f"Original Source: {self.original_source}\n" \
