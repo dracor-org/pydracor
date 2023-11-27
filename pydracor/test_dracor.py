@@ -6,11 +6,12 @@ Results for tests dating 2023-01-30
 
 import unittest
 import warnings
+from pathlib import Path
 
-from pydracor import DraCor, Corpus, Play, Character
+from pydracor import DraCor, Corpus, Play, Character, Wikidata
 
 CORPORA = sorted(['als', 'bash', 'cal', 'fre', 'ger', 'gersh', 'greek', 'hun', 'ita', 'rom', 'rus', 'shake', 'span', 'swe', 'tat'])
-
+ARTIFACTS_DIR = Path(__file__).parent/"test_artifacts"
 
 class TestDraCorClass(unittest.TestCase):
     maxDiff = None
@@ -189,7 +190,7 @@ class TestDraCorClass(unittest.TestCase):
                     ])
 
     def test_play_info_by_id(self):
-        html_text_response = open("test_artefacts/play_info_by_id.txt").read().strip()
+        html_text_response = (ARTIFACTS_DIR / "play_info_by_id.html").read_text().strip()
         self.assertEqual(
                 self.dracor.play_info_by_id("ger000023"),
                 html_text_response)
@@ -692,6 +693,27 @@ class TestCharacterClass(unittest.TestCase):
             f"Is group: False\n"
         )
 
+class TestWikidataClass(unittest.TestCase):
+    wikidata = Wikidata()
+
+    def test_get_author_info_by_id(self):
+        self.assertEqual(
+        self.wikidata.get_author_info_by_id("Q34628"),
+        {
+          "birthDate": "1729-01-22T00:00:00Z",
+          "gender": "male",
+          "birthPlace": "Kamenz",
+          "deathPlace": "Brunswick",
+          "name": "Gotthold Ephraim Lessing",
+          "imageUrl": "http://commons.wikimedia.org/wiki/Special:FilePath/Gotthold%20Ephraim%20Lessing%20Kunstsammlung%20Uni%20Leipzig.jpg",
+          "genderUri": "http://www.wikidata.org/entity/Q6581097",
+          "deathDate": "1781-02-15T00:00:00Z"
+        }
+        )
+
+    def test_mixnmatch(self):
+        mixnmatch_response = (ARTIFACTS_DIR / "mixnmatch.csv").read_text().strip()
+        self.assertEqual(self.wikidata.mixnmatch(), mixnmatch_response)
 
 if __name__ == '__main__':
     unittest.main()
