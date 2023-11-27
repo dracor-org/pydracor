@@ -308,7 +308,7 @@ class TestCorpusClass(unittest.TestCase):
         self.assertIsInstance(metadata_csv, str)
         metadata_csv_entries = metadata_csv.splitlines()
         self.assertEqual(len(metadata_csv_entries), self.num_of_plays + 1)
-        self.assertEqual(metadata_csv_entries[0], ("name,id,firstAuthor,numOfCoAuthors,title,"
+        self.assertEqual(metadata_csv_entries[0], ("name,id,wikidataId,firstAuthor,numOfCoAuthors,title,"
                                               "subtitle,normalizedGenre,digitalSource,originalSourcePublisher,"
                                               "originalSourcePubPlace,originalSourceYear,originalSourceNumberOfPages,"
                                               "yearNormalized,size,libretto,averageClustering,density,averagePathLength,"
@@ -603,7 +603,7 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(len(play_spoken_text.split('\n')), 935)
         self.assertEqual(len(self.play.spoken_text(gender='MALE').split('\n')), 577)
         self.assertEqual(len(self.play.spoken_text(gender='FEMALE').split('\n')), 355)
-        self.assertEqual(len(self.play.spoken_text(gender='UNKNOWN').split('\n')), 2)
+        self.assertEqual(len(self.play.spoken_text(gender='UNKNOWN').split('\n')), 1)
 
     def test_spoken_text_by_character(self):
         play_spoken_text_by_character = self.play.spoken_text_by_character()
