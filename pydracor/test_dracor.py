@@ -8,7 +8,8 @@ import unittest
 import warnings
 from pathlib import Path
 
-from pydracor import DraCor, Corpus, Play, Character, Wikidata
+#from pydracor import DraCor, Corpus, Play, Character, Wikidata
+from dracor import DraCor, Corpus, Play, Character, Wikidata
 
 CORPORA = sorted(['als', 'bash', 'cal', 'fre', 'ger', 'gersh', 'greek', 'hun', 'ita', 'rom', 'rus', 'shake', 'span', 'swe', 'tat'])
 ARTIFACTS_DIR = Path(__file__).parent/"test_artifacts"
@@ -286,6 +287,11 @@ class TestCorpusClass(unittest.TestCase):
         self.assertEqual(set(dct), set(self.corpus.play_ids()))
         self.assertEqual(dct['rus000138'], 1913)
 
+    def test_dates_premiered(self):
+        dct = self.corpus.dates_premiered()
+        self.assertEqual(set(dct), set(self.corpus.play_ids()))
+        self.assertIsNone(dct['rus000138'])
+
     def test_metadata(self):
         lst = self.corpus.metadata()
         self.assertIsInstance(lst, list)
@@ -411,8 +417,9 @@ class TestCorpusClass(unittest.TestCase):
                 'Written years': ['1747', '1940'],
                 'Premiere years': ['1750', '1992'],
                 'Years of the first printing': ['1747', '1986'],
+                'Number of plays in the corpus': 212,
                 'Normalized years' : [1747, 1947],
-                'Number of plays in the corpus': 212
+                'Premiere dates' : ["-", "-"]
             }
         )
 
@@ -421,6 +428,7 @@ class TestCorpusClass(unittest.TestCase):
             str(self.corpus),
             f'Written years: 1747 - 1940\n'
             f'Premiere years: 1750 - 1992\n'
+            f'Premiere dates: - - -\n'
             f'Years of the first printing: 1747 - 1986\n'
             f'Normalized years: 1747 - 1947\n'
             f'212 plays in Russian Drama Corpus\n'
@@ -619,19 +627,34 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(
             play_summary,
             {
-                "id": play_summary['id'],
-                "title": play_summary['title'],
-                "subtitle": play_summary['subtitle'],
-                "wikidata_id": play_summary['wikidata_id'],
-                "authors": play_summary['authors'],
-                "normalized_genre": play_summary['normalized_genre'],
-                "libretto": play_summary['libretto'],
-                "source": play_summary['source'],
-                "original_source": play_summary['original_source'],
-                "year_written": play_summary['year_written'],
-                "year_printed": play_summary['year_printed'],
-                "year_premiered": play_summary['year_premiered'],
-                "year_normalized": play_summary['year_normalized']
+                "id": 'rus000160',
+                "title": 'Доходное место',
+                "subtitle": 'Комедия в пяти действиях',
+                "wikidata_id": 'Q4167340',
+                "authors": [
+                    {
+                    'name': 'Островский, Александр Николаевич',
+                    'fullname': 'Александр Николаевич Островский',
+                    'shortname': 'Островский',
+                    'refs': [{'ref': 'Q171976', 'type': 'wikidata'}],
+                    'fullname_en': 'Alexander Ostrovsky',
+                    'name_en': 'Ostrovsky, Alexander',
+                    'shortname_en': 'Ostrovsky',
+                    'also_known_as': ['Alexander Ostrovsky']
+                    }
+                ],
+                "normalized_genre": 'Comedy',
+                "libretto": False,
+                "source": {
+                    'name': 'Библиотека Максима Мошкова (lib.ru)',
+                    'url': 'http://az.lib.ru/o/ostrowskij_a_n/text_0050.shtml'
+                    },
+                "original_source": 'Москва, Изд-во "ЭКСМО", 2004',
+                "year_written": '1856',
+                "year_printed": '1856',
+                "year_premiered": '1857',
+                "year_normalized": 1856,
+                "date_premiered": None
             }
         )
 
@@ -649,6 +672,7 @@ class TestPlayClass(unittest.TestCase):
             f"Year (printed): 1856\n"
             f"Year (premiered): 1857\n"
             f"Year (normalized): 1856\n"
+            f"Date (premiered): None\n"
         )
 
 
@@ -700,19 +724,19 @@ class TestWikidataClass(unittest.TestCase):
         self.assertEqual(
         self.wikidata.get_author_info_by_id("Q34628"),
         {
-          "birthDate": "1729-01-22T00:00:00Z",
+          "birth_date": "1729-01-22T00:00:00Z",
           "gender": "male",
-          "birthPlace": "Kamenz",
-          "deathPlace": "Brunswick",
+          "birth_place": "Kamenz",
+          "death_place": "Brunswick",
           "name": "Gotthold Ephraim Lessing",
-          "imageUrl": "http://commons.wikimedia.org/wiki/Special:FilePath/Gotthold%20Ephraim%20Lessing%20Kunstsammlung%20Uni%20Leipzig.jpg",
-          "genderUri": "http://www.wikidata.org/entity/Q6581097",
-          "deathDate": "1781-02-15T00:00:00Z"
+          "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Gotthold%20Ephraim%20Lessing%20Kunstsammlung%20Uni%20Leipzig.jpg",
+          "gender_uri": "http://www.wikidata.org/entity/Q6581097",
+          "death_date": "1781-02-15T00:00:00Z"
         }
         )
 
     def test_mixnmatch(self):
-        mixnmatch_response = (ARTIFACTS_DIR / "mixnmatch.csv").read_text().strip()
+        mixnmatch_response = (ARTIFACTS_DIR / "mixnmatch.csv").read_text()
         self.assertEqual(self.wikidata.mixnmatch(), mixnmatch_response)
 
 if __name__ == '__main__':
