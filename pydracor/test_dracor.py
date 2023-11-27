@@ -561,19 +561,19 @@ class TestPlayClass(unittest.TestCase):
         self.assertEqual(self.play.num_of_unknown_characters, 0)
 
     def test_tei(self):
-        self.assertIsInstance(self.play.tei, str)
+        self.assertIsInstance(self.play.tei(), str)
 
     def test_rdf(self):
-        self.assertIsInstance(self.play.rdf, str)
+        self.assertIsInstance(self.play.rdf(), str)
         self.assertEqual(self.play.rdf[:8], '<rdf:RDF')
 
     def test_csv(self):
-        csv = self.play.csv
+        csv = self.play.csv()
         self.assertIsInstance(csv, str)
         self.assertEqual(csv.split('\n')[0], 'Source,Type,Target,Weight')
 
     def test_gexf(self):
-        gexf = self.play.gexf
+        gexf = self.play.gexf()
         self.assertIsInstance(gexf, str)
         self.assertEqual(gexf.split('\n')[0], '<?xml version="1.0" encoding="UTF-8"?>')
 

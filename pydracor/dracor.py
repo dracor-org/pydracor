@@ -1154,7 +1154,6 @@ class Play(Corpus):
 
         return len([character for character in self.get_characters() if character['gender'] == 'UNKNOWN'])
 
-    @property
     @lru_cache()
     def tei(self):
         """Get TEI document of a single play.
@@ -1167,7 +1166,6 @@ class Play(Corpus):
 
         return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/tei")
 
-    @property
     @lru_cache()
     def rdf(self):
         """Get RDF document for a single play.
@@ -1180,7 +1178,6 @@ class Play(Corpus):
 
         return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/rdf")
 
-    @property
     @lru_cache()
     def csv(self):
         """Get network data of a play as CSV
@@ -1194,7 +1191,6 @@ class Play(Corpus):
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/csv")
 
-    @property
     @lru_cache()
     def gexf(self):
         """Get network data of a play as GEXF.
@@ -1208,6 +1204,7 @@ class Play(Corpus):
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/gexf"
         )
+
     @lru_cache()
     def graphml(self):
         """Get network data of a play as graphml.
