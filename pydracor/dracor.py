@@ -692,6 +692,27 @@ class Corpus(DraCor):
         }
 
     @lru_cache()
+    def dates_premiered(self):
+        """Map play id to the premiered date.
+
+        Returns None if the print date is unknown.
+
+        Returns
+        -------
+        dictionary
+            {
+                'fre000001': '1678-02-25',
+                ...
+            }
+        """
+
+        return {
+            play['id']: (int(play['date_premiered']) if 'date_premiered' in play else None)
+            for play in self.corpus_info()['plays']
+        }
+
+
+    @lru_cache()
     def metadata(self):
         """List of metadata for all plays in a corpus.
 
@@ -904,16 +925,30 @@ class Corpus(DraCor):
         years_premiered = sorted([year_premiered for year_premiered in self.years_premiered().values() if year_premiered])
         years_printed = sorted([year_printed for year_printed in self.years_printed().values() if year_printed])
         years_normalized = [year_normalized for year_normalized in self.years_normalized().values() if year_normalized]
-        return {
+        dates_premiered = sorted([date_premiered for date_premiered in self.dates_premiered().values() if date_premiered])
+
+        summary = {
             'Corpus title': self.title,
             'Corpus id': self.corpus_name,
             'Repository': self.repository,
             'Written years': [years_written[0], years_written[-1]],
             'Premiere years': [years_premiered[0], years_premiered[-1]],
             'Years of the first printing': [years_printed[0], years_printed[-1]],
-            'Normalized years': [min(years_normalized), max(years_normalized)],
             'Number of plays in the corpus': self.num_of_plays,
         }
+
+        if len(years_normalized) > 0:
+            summary['Normalized years'] =  [min(years_normalized), max(years_normalized)]
+        else:
+            summary['Normalized years'] =  ["-", "-"]
+
+        if len(dates_premiered) > 0:
+            summary['Premiere dates'] = [dates_premiered[0], dates_premiered[-1]]
+        else:
+            summary['Premiere dates'] =  ["-", "-"]
+
+        return summary
+
 
     def __str__(self):
         """Corpus summary in a text
@@ -932,6 +967,7 @@ class Corpus(DraCor):
         info = self.summary()
         return f"Written years: {info['Written years'][0]} - {info['Written years'][1]}\n" \
                f"Premiere years: {info['Premiere years'][0]} - {info['Premiere years'][1]}\n" \
+               f"Premiere dates: {info['Premiere dates'][0]} - {info['Premiere dates'][1]}\n" \
                f"Years of the first printing: {info['Years of the first printing'][0]} - {info['Years of the first printing'][1]}\n" \
                f"Normalized years: {info['Normalized years'][0]} - {info['Normalized years'][1]}\n" \
                f"{info['Number of plays in the corpus']} plays in {info['Corpus title']}\n" \
@@ -1013,6 +1049,9 @@ class Play(Corpus):
         info = self.play_info()
         for key in info:
             setattr(self, key, info[key])
+        if "date_premiered" not in info:
+            self.date_premiered = None
+
         metrics = self.metrics()
         for key in metrics:
             setattr(self, key, metrics[key])
@@ -1301,7 +1340,7 @@ class Play(Corpus):
             }
         """
 
-        return {
+        return  {
             "id": self.id,
             "title": self.title,
             "subtitle": self.subtitle,
@@ -1314,7 +1353,8 @@ class Play(Corpus):
             "year_written": self.year_written,
             "year_printed": self.year_printed,
             "year_premiered": self.year_premiered,
-            "year_normalized": self.year_normalized
+            "year_normalized": self.year_normalized,
+            "date_premiered": self.date_premiered
         }
 
     def __str__(self):
@@ -1346,7 +1386,8 @@ class Play(Corpus):
                         f"Year (written): {self.year_written}\n" \
                         f"Year (printed): {self.year_printed}\n" \
                         f"Year (premiered): {self.year_premiered}\n" \
-                        f"Year (normalized): {self.year_normalized}\n"
+                        f"Year (normalized): {self.year_normalized}\n" \
+                        f"Date (premiered): {self.date_premiered}\n"
         return result_string
 
 
@@ -1435,6 +1476,42 @@ class Character(Play):
                         f"Gender: {self.gender}\n" \
                         f"Is group: {self.is_group}\n"
         return result_string
+
+class Wikidata(DraCor):
+    """
+    A class to handle wikidata related requests.
+    """
+
+    def get_author_info_by_id(self, wikidata_id):
+        """
+        List author information from Wikidata.
+
+        Parameters
+        ----------
+        wikidata_id: str
+
+        Returns
+        -------
+        dict:
+        {
+          "birthDate": "1729-01-22T00:00:00Z",
+          "gender": "male",
+          "birthPlace": "Kamenz",
+          "deathPlace": "Brunswick",..
+        }
+        """
+        return self.make_get_json_request(f"{self._base_url}/wikidata/author/{wikidata_id}")
+
+    def mixnmatch(self):
+        """
+        Endpoint for Wikidata Mix'n'match.
+        See: https://meta.wikimedia.org/wiki/Mix'n'match/Import.
+
+        Returns
+        -------
+        string: CSV representation with play id, play name, wikidataID
+        """
+        return self.make_get_text_request(f"{self._base_url}/wikidata/mixnmatch")
 
 
 if __name__ == "__main__":
