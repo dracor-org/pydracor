@@ -1272,7 +1272,7 @@ class Play(Corpus):
         """
 
         assert gender in ['', 'FEMALE', 'MALE', 'UNKNOWN'], \
-            "gender parameter should be either 'MALE', 'FEMALE', 'UNKONWN' or ''"
+            "gender parameter should be either 'MALE', 'FEMALE', 'UNKNOWN' or ''"
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/spoken-text?gender={gender}"
         )
