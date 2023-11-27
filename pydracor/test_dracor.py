@@ -577,6 +577,12 @@ class TestPlayClass(unittest.TestCase):
         self.assertIsInstance(gexf, str)
         self.assertEqual(gexf.split('\n')[0], '<?xml version="1.0" encoding="UTF-8"?>')
 
+    def test_graphml(self):
+        graphml = self.play.graphml()
+        self.assertIsInstance(graphml, str)
+        self.assertEqual(len(graphml), 11054)
+        self.assertTrue('?xml version' in graphml)
+
     def test_relations_csv(self):
         relations_csv = self.play.relations_csv()
         self.assertIsInstance(relations_csv, str)

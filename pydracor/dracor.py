@@ -1208,6 +1208,19 @@ class Play(Corpus):
         return self.make_get_text_request(
             f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/gexf"
         )
+    @lru_cache()
+    def graphml(self):
+        """Get network data of a play as graphml.
+
+        Returns
+        -------
+        string
+            graphml representation of a play
+        """
+
+        return self.make_get_text_request(
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/graphml"
+        )
 
     @lru_cache()
     def relations_csv(self):
