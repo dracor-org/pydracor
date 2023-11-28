@@ -563,10 +563,6 @@ class TestPlayClass(unittest.TestCase):
     def test_tei(self):
         self.assertIsInstance(self.play.tei(), str)
 
-    def test_rdf(self):
-        self.assertIsInstance(self.play.rdf(), str)
-        self.assertEqual(self.play.rdf[:8], '<rdf:RDF')
-
     def test_csv(self):
         csv = self.play.csv()
         self.assertIsInstance(csv, str)

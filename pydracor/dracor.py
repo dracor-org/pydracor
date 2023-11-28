@@ -1167,18 +1167,6 @@ class Play(Corpus):
         return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/tei")
 
     @lru_cache()
-    def rdf(self):
-        """Get RDF document for a single play.
-
-        Returns
-        -------
-        string
-            rdf representation of a play
-        """
-
-        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/rdf")
-
-    @lru_cache()
     def csv(self):
         """Get network data of a play as CSV
 
