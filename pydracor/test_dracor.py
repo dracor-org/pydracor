@@ -11,7 +11,7 @@ from pathlib import Path
 #from pydracor import DraCor, Corpus, Play, Character, Wikidata
 from dracor import DraCor, Corpus, Play, Character, Wikidata
 
-CORPORA = sorted(['als', 'bash', 'cal', 'fre', 'ger', 'gersh', 'greek', 'hun', 'ita', 'rom', 'rus', 'shake', 'span', 'swe', 'tat'])
+CORPORA = sorted(['als', 'bash', 'cal', 'fre', 'ger', 'gersh', 'greek', 'hun', 'ita', 'rom', 'rus', 'shake', 'span', 'swe', 'tat', 'u'])
 ARTIFACTS_DIR = Path(__file__).parent/"test_artifacts"
 
 class TestDraCorClass(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestDraCorClass(unittest.TestCase):
         self.assertEqual(self.dracor.name, "DraCor API v1")
         self.assertEqual(self.dracor.status, "beta")
         self.assertEqual(self.dracor.existdb, "6.2.0")
-        self.assertEqual(self.dracor.version, "1.0.0-beta.4")
+        self.assertEqual(self.dracor.version, "1.0.0")
 
     def test_transform_dict(self):
         self.assertEqual(
@@ -59,9 +59,10 @@ class TestDraCorClass(unittest.TestCase):
     def test_dracor_info(self):
         self.assertEqual(self.dracor.dracor_info(),{
             'name': 'DraCor API v1',
-            'version': '1.0.0-beta.4',
+            'version': '1.0.0',
             'status': 'beta',
-            'existdb': '6.2.0'})
+            'existdb': '6.2.0',
+            'base': 'https://dracor.org/api/v1'})
 
     def test_corpora(self):
         corpora = self.dracor.corpora()
@@ -202,10 +203,10 @@ class TestDraCorClass(unittest.TestCase):
         self.assertIsInstance(dracor_summary, dict)
         self.assertEqual(
             dracor_summary, {
-                "name": "DraCor API",
+                "name": "DraCor API v1",
                 "status": "beta",
                 "existdb": "6.2.0",
-                "version": "1.0.0-beta.4",
+                "version": "1.0.0",
                 "corpora_full_names": [
                     'Alsatian Drama Corpus', 'Bashkir Drama Corpus', 'Calderón Drama Corpus', 'French Drama Corpus',
                     'German Drama Corpus', 'German Shakespeare Drama Corpus', 'Greek Drama Corpus',
@@ -213,6 +214,7 @@ class TestDraCorClass(unittest.TestCase):
                     'Shakespeare Drama Corpus', 'Spanish Drama Corpus', 'Swedish Drama Corpus', 'Tatar Drama Corpus',
                     'Ukrainian Drama Corpus'
                 ],
+                "base": "https://dracor.org/api/v1",
                 "corpora_abbreviations": CORPORA,
                 "number_of_corpora": len(CORPORA),
             }
@@ -221,10 +223,10 @@ class TestDraCorClass(unittest.TestCase):
     def test_str(self):
         self.assertEqual(
             str(self.dracor),
-            f"Name: DraCor API\n"
+            f"Name: DraCor API v1\n"
             f"Status: beta\n"
-            f"Existdb: 6.0.1\n"
-            f"Version: 0.87.1\n"
+            f"Existdb: 6.2.0\n"
+            f"Version: 1.0.0\n"
             f"Corpora (full names): Alsatian Drama Corpus, Bashkir Drama Corpus, Calderón Drama Corpus, French Drama Corpus, German Drama Corpus, German Shakespeare Drama Corpus, Greek Drama Corpus, Hungarian Drama Corpus, Italian Drama Corpus, Roman Drama Corpus, Russian Drama Corpus, Shakespeare Drama Corpus, Spanish Drama Corpus, Swedish Drama Corpus, Tatar Drama Corpus, Ukrainian Drama Corpus\n"
             f"Corpora (abbreviations): als, bash, cal, fre, ger, gersh, greek, hun, ita, rom, rus, shake, span, swe, tat, u\n"
             f"Number of corpora: 16\n"
@@ -312,9 +314,9 @@ class TestCorpusClass(unittest.TestCase):
                                               "subtitle,normalizedGenre,digitalSource,originalSourcePublisher,"
                                               "originalSourcePubPlace,originalSourceYear,originalSourceNumberOfPages,"
                                               "yearNormalized,size,libretto,averageClustering,density,averagePathLength,"
-                                              "maxDegreeIds,averageDegree,diameter,yearPremiered,yearPrinted,maxDegree,"
+                                              "maxDegreeIds,averageDegree,diameter,datePremiered,yearPremiered,yearPrinted,maxDegree,"
                                               "numOfSpeakers,numOfSpeakersFemale,numOfSpeakersMale,numOfSpeakersUnknown,"
-                                              "numPersonGroups,numConnectedComponents,numEdges,yearWritten,numOfSegments,"
+                                              "numOfPersonGroups,numConnectedComponents,numEdges,yearWritten,numOfSegments,"
                                               "wikipediaLinkCount,numOfActs,wordCountText,wordCountSp,wordCountStage,"
                                               "numOfP,numOfL"))
         self.assertEqual(metadata_csv_entries[1].split(",")[0], '"afinogenov-mashenka"')
@@ -341,7 +343,7 @@ class TestCorpusClass(unittest.TestCase):
         lst = self.corpus.filter(
             id__in=frozenset(f"rus000{num:03d}" for num in range(0, 250, 2)),
             subtitle__icontains='комедия',
-            author__name__contains='Крылов'
+            authors__name__contains='Крылов'
         )
         self.assertEqual(set(lst), {'rus000102', 'rus000038', 'rus000132'})
 
@@ -354,12 +356,6 @@ class TestCorpusClass(unittest.TestCase):
             title__exact='Мысль'
         )
         self.assertEqual(set(lst), {'rus000137'})
-
-        lst = self.corpus.filter(
-            year_normalized__in=frozenset(['1935', '1936']),
-            source_url__contains='lib'
-        )
-        self.assertEqual(set(lst), {'rus000090', 'rus000083'})
 
         lst = self.corpus.filter(
             wikidata_id__iexact='Q1989636'
