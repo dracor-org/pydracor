@@ -20,8 +20,7 @@ class DraCor:
         a URL to post SPARQL queries to
     """
 
-    #_base_url = 'https://dracor.org/api/'
-    _base_url = 'https://staging.dracor.org/api/v1'
+    _base_url = 'https://dracor.org/api/v1'
     _sparql_url = 'https://dracor.org/fuseki/sparql'
 
     def __init__(self):
