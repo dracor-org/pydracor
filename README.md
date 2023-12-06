@@ -1,6 +1,6 @@
 # pydracor
 
-pydracor is a Python package which provides access to the [DraCor API](https://dracor.org/doc/api).
+pydracor is a Python package which provides access to the [DraCor API](https://dracor.org/doc/api/).
 
 ## Acknowledgment:
 
@@ -110,9 +110,9 @@ The development of this package was supported by Computational Literary Studies 
     ```
   - Map play id to the X year
     ```python
-    >>> corpus.written_years()
-    >>> corpus.premiere_years()
-    >>> corpus.premiere_years()
+    >>> corpus.years_written()
+    >>> corpus.years_premiered()
+    >>> corpus.years_normalized()
     ```
   - List of metadata for all plays in a corpus
     ```python
@@ -126,8 +126,8 @@ The development of this package was supported by Computational Literary Studies 
 
     Possible fields: all the attributes that the *Corpus* instance contains
     ```python
-    >>> corpus.filter(written_year__eq=1913, network_size__lt=20)
-    >>> corpus.filter(print_year__lt=1850, source__icontains='lib.ru', premiere_year__gt=1845)
+    >>> corpus.filter(year_written__eq=1913, network_size__lt=20)
+    >>> corpus.filter(year_printed__lt=1850, source__icontains='lib.ru', year_premiered__gt=1845)
     >>> corpus.filter(
         id__in=frozenset(f"rus000{num:03d}" for num in range(0, 250, 2)),
         subtitle__icontains='комедия',
@@ -185,7 +185,6 @@ The development of this package was supported by Computational Literary Studies 
     >>> play.num_of_female_characters
     >>> play.num_of_unknown_characters
     >>> play.tei
-    >>> play.rdf
     >>> play.csv
     >>> play.gexf
     ```
@@ -223,6 +222,21 @@ The development of this package was supported by Computational Literary Studies 
     ```python
     >>> str(character)
     ```
+
+### Wikidata
+  - Initialize a *Wikidata* instance
+    ```python
+    >>> wikidata = Wikidata()
+    ```
+  -  Get auhtor information by WikidataID
+    ```python
+    >>> author_info = Wikidata.get_author_info_by_id("Q34628")
+    ```
+  - Get Wikidata Mix'n'match information as CSV
+    ```python
+    >>> wikidata_mixnmatch = Wikidata.mixnmatch()
+    ```
+
 
 ## Installation
 ```sh
