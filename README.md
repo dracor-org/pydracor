@@ -228,7 +228,7 @@ The development of this package was supported by Computational Literary Studies 
     ```python
     >>> wikidata = Wikidata()
     ```
-  -  Get auhtor information by WikidataID
+  - Get author information by WikidataID
     ```python
     >>> author_info = Wikidata.get_author_info_by_id("Q34628")
     ```
