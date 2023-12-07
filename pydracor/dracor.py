@@ -20,7 +20,7 @@ class DraCor:
         a URL to post SPARQL queries to
     """
 
-    _base_url = 'https://dracor.org/api/'
+    _base_url = 'https://dracor.org/api/v1'
     _sparql_url = 'https://dracor.org/fuseki/sparql'
 
     def __init__(self):
@@ -273,7 +273,7 @@ class DraCor:
         return {
             play[field]: corpus_name
             for corpus_name in self.corpora_names()
-            for play in Corpus(corpus_name).corpus_info()['dramas']
+            for play in Corpus(corpus_name).corpus_info()['plays']
         }
 
     @lru_cache()
@@ -322,7 +322,7 @@ class DraCor:
         return {
             play['id']: play[field]
             for corpus_name in self.corpora_names()
-            for play in Corpus(corpus_name).corpus_info()['dramas']
+            for play in Corpus(corpus_name).corpus_info()['plays']
         }
 
     @lru_cache()
@@ -341,7 +341,7 @@ class DraCor:
         return {
             play[field]: play['id']
             for corpus_name in self.corpora_names()
-            for play in Corpus(corpus_name).corpus_info()['dramas']
+            for play in Corpus(corpus_name).corpus_info()['plays']
         }
 
     @lru_cache()
@@ -444,6 +444,22 @@ class DraCor:
         """
         return self.make_get_json_request(f"{self._base_url}/character/{wikidata_id}")
 
+    @lru_cache()
+    def play_info_by_id(self, play_id):
+        """Depending on the Accept header this endpoint redirects to either the RDF representation [play-rdf],
+        the JSON meta data [play-info] or the dracor.org URL of the play identified by the id parameter.
+
+        Parameters
+        ----------
+        play_id : str
+            The id of a play: ger000023
+
+        Returns
+        -------
+        str: <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" ...
+
+        """
+        return self.make_get_text_request(f"{self._base_url}/id/{play_id}")
 
     @lru_cache()
     def summary(self):
@@ -525,7 +541,7 @@ class Corpus(DraCor):
         info = self.corpus_info()
         for key in info:
             setattr(self, key, info[key])
-        self.num_of_plays = len(info['dramas'])
+        self.num_of_plays = len(info['plays'])
 
     @lru_cache()
     def corpus_info(self):
@@ -540,7 +556,7 @@ class Corpus(DraCor):
               "name": "rus",
               "title": "Russian Drama Corpus",
               "repository": "https://github.com/dracor-org/rusdracor",
-              "dramas": [
+              "plays": [
                 {
                     ...
                 },
@@ -561,7 +577,7 @@ class Corpus(DraCor):
             ["rus000138", ...]
         """
 
-        return [play['id'] for play in self.corpus_info()['dramas']]
+        return [play['id'] for play in self.corpus_info()['plays']]
 
     @lru_cache()
     def play_names(self):
@@ -576,7 +592,7 @@ class Corpus(DraCor):
             }
         """
 
-        return {play['id']: play['name'] for play in self.corpus_info()['dramas']}
+        return {play['id']: play['name'] for play in self.corpus_info()['plays']}
 
     @lru_cache()
     def play_titles(self):
@@ -591,10 +607,10 @@ class Corpus(DraCor):
             }
         """
 
-        return {play['id']: play['title'] for play in self.corpus_info()['dramas']}
+        return {play['id']: play['title'] for play in self.corpus_info()['plays']}
 
     @lru_cache()
-    def written_years(self):
+    def years_written(self):
         """Map play id to the written year.
 
         Returns None if the written year is unknown.
@@ -610,12 +626,12 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: play['written_year']
-            for play in self.corpus_info()['dramas']
+            play['id']: play['year_written']
+            for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
-    def premiere_years(self):
+    def years_premiered(self):
         """Map play id to the premiere year.
 
         Returns None if the premiere year is unknown.
@@ -630,12 +646,12 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: play['premiere_year']
-            for play in self.corpus_info()['dramas']
+            play['id']: play['year_premiered']
+            for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
-    def print_years(self):
+    def years_printed(self):
         """Map play id to the print year.
 
         Returns None if the print year is unknown.
@@ -650,12 +666,12 @@ class Corpus(DraCor):
         """
 
         return {
-            play['id']: play['print_year']
-            for play in self.corpus_info()['dramas']
+            play['id']: play['year_printed']
+            for play in self.corpus_info()['plays']
         }
 
     @lru_cache()
-    def normalized_years(self):
+    def years_normalized(self):
         """Map play id to the normalized year.
 
         Returns None if the print normalized is unknown.
@@ -671,8 +687,29 @@ class Corpus(DraCor):
 
         return {
             play['id']: (int(play['year_normalized']) if play['year_normalized'] else play['year_normalized'])
-            for play in self.corpus_info()['dramas']
+            for play in self.corpus_info()['plays']
         }
+
+    @lru_cache()
+    def dates_premiered(self):
+        """Map play id to the premiered date.
+
+        Returns None if the print date is unknown.
+
+        Returns
+        -------
+        dictionary
+            {
+                'fre000001': '1678-02-25',
+                ...
+            }
+        """
+
+        return {
+            play['id']: (int(play['date_premiered']) if 'date_premiered' in play else None)
+            for play in self.corpus_info()['plays']
+        }
+
 
     @lru_cache()
     def metadata(self):
@@ -716,7 +753,7 @@ class Corpus(DraCor):
         ----------
         kwargs
             {
-                "written_year__eq": 1913,
+                "year_written__eq": 1913,
                 "network_size__lt": 20,
                 "title__icontains": "в",
                 ...
@@ -733,7 +770,7 @@ class Corpus(DraCor):
             list of play ids that satisfy the conditions
         """
 
-        plays = self.corpus_info()['dramas']
+        plays = self.corpus_info()['plays']
         fields = set([field_name for play_entry in plays for field_name in play_entry.keys()])
         for kwarg, value in kwargs.items():
             if value is not None:
@@ -831,7 +868,7 @@ class Corpus(DraCor):
 
         authors = defaultdict(int)
         info = self.corpus_info()
-        for play in info['dramas']:
+        for play in info['plays']:
             for author in play['authors']:
                 authors[author['name']] += 1
         sorted_authors = sorted(authors.items(), key=lambda elem: -elem[1])
@@ -883,20 +920,34 @@ class Corpus(DraCor):
             }
         """
 
-        written_years = sorted([written_year for written_year in self.written_years().values() if written_year])
-        premiere_years = sorted([premiere_year for premiere_year in self.premiere_years().values() if premiere_year])
-        print_years = sorted([print_year for print_year in self.print_years().values() if print_year])
-        normalized_years = [normalized_year for normalized_year in self.normalized_years().values() if normalized_year]
-        return {
+        years_written = sorted([year_written for year_written in self.years_written().values() if year_written])
+        years_premiered = sorted([year_premiered for year_premiered in self.years_premiered().values() if year_premiered])
+        years_printed = sorted([year_printed for year_printed in self.years_printed().values() if year_printed])
+        years_normalized = [year_normalized for year_normalized in self.years_normalized().values() if year_normalized]
+        dates_premiered = sorted([date_premiered for date_premiered in self.dates_premiered().values() if date_premiered])
+
+        summary = {
             'Corpus title': self.title,
             'Corpus id': self.corpus_name,
             'Repository': self.repository,
-            'Written years': [written_years[0], written_years[-1]],
-            'Premiere years': [premiere_years[0], premiere_years[-1]],
-            'Years of the first printing': [print_years[0], print_years[-1]],
-            'Normalized years': [min(normalized_years), max(normalized_years)],
+            'Written years': [years_written[0], years_written[-1]],
+            'Premiere years': [years_premiered[0], years_premiered[-1]],
+            'Years of the first printing': [years_printed[0], years_printed[-1]],
             'Number of plays in the corpus': self.num_of_plays,
         }
+
+        if len(years_normalized) > 0:
+            summary['Normalized years'] =  [min(years_normalized), max(years_normalized)]
+        else:
+            summary['Normalized years'] =  ["-", "-"]
+
+        if len(dates_premiered) > 0:
+            summary['Premiere dates'] = [dates_premiered[0], dates_premiered[-1]]
+        else:
+            summary['Premiere dates'] =  ["-", "-"]
+
+        return summary
+
 
     def __str__(self):
         """Corpus summary in a text
@@ -915,6 +966,7 @@ class Corpus(DraCor):
         info = self.summary()
         return f"Written years: {info['Written years'][0]} - {info['Written years'][1]}\n" \
                f"Premiere years: {info['Premiere years'][0]} - {info['Premiere years'][1]}\n" \
+               f"Premiere dates: {info['Premiere dates'][0]} - {info['Premiere dates'][1]}\n" \
                f"Years of the first printing: {info['Years of the first printing'][0]} - {info['Years of the first printing'][1]}\n" \
                f"Normalized years: {info['Normalized years'][0]} - {info['Normalized years'][1]}\n" \
                f"{info['Number of plays in the corpus']} plays in {info['Corpus title']}\n" \
@@ -996,8 +1048,9 @@ class Play(Corpus):
         info = self.play_info()
         for key in info:
             setattr(self, key, info[key])
-        if hasattr(self, 'author'):
-            delattr(self, 'author')
+        if "date_premiered" not in info:
+            self.date_premiered = None
+
         metrics = self.metrics()
         for key in metrics:
             setattr(self, key, metrics[key])
@@ -1012,7 +1065,7 @@ class Play(Corpus):
             json
         """
 
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}")
 
     @lru_cache()
     def metrics(self):
@@ -1027,7 +1080,7 @@ class Play(Corpus):
                 ...
             }
         """
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/metrics")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/metrics")
 
     @lru_cache()
     def get_characters(self):
@@ -1046,7 +1099,7 @@ class Play(Corpus):
             ]
         """
 
-        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters")
+        return self.make_get_json_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/characters")
 
     @lru_cache()
     def characters_csv(self):
@@ -1059,7 +1112,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/characters/csv"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/characters/csv"
         )
 
     @property
@@ -1100,7 +1153,6 @@ class Play(Corpus):
 
         return len([character for character in self.get_characters() if character['gender'] == 'UNKNOWN'])
 
-    @property
     @lru_cache()
     def tei(self):
         """Get TEI document of a single play.
@@ -1111,22 +1163,8 @@ class Play(Corpus):
             TEI document of a single play
         """
 
-        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/tei")
+        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/tei")
 
-    @property
-    @lru_cache()
-    def rdf(self):
-        """Get RDF document for a single play.
-
-        Returns
-        -------
-        string
-            rdf representation of a play
-        """
-
-        return self.make_get_text_request(f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/rdf")
-
-    @property
     @lru_cache()
     def csv(self):
         """Get network data of a play as CSV
@@ -1138,9 +1176,8 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/networkdata/csv")
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/csv")
 
-    @property
     @lru_cache()
     def gexf(self):
         """Get network data of a play as GEXF.
@@ -1152,7 +1189,21 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/networkdata/gexf"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/gexf"
+        )
+
+    @lru_cache()
+    def graphml(self):
+        """Get network data of a play as graphml.
+
+        Returns
+        -------
+        string
+            graphml representation of a play
+        """
+
+        return self.make_get_text_request(
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/networkdata/graphml"
         )
 
     @lru_cache()
@@ -1166,7 +1217,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/csv"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/relations/csv"
         )
 
     @lru_cache()
@@ -1180,7 +1231,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/gexf"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/relations/gexf"
         )
 
     @lru_cache()
@@ -1194,7 +1245,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/relations/graphml"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/relations/graphml"
         )
 
     @lru_cache()
@@ -1218,9 +1269,9 @@ class Play(Corpus):
         """
 
         assert gender in ['', 'FEMALE', 'MALE', 'UNKNOWN'], \
-            "gender parameter should be either 'MALE', 'FEMALE', 'UNKONWN' or ''"
+            "gender parameter should be either 'MALE', 'FEMALE', 'UNKNOWN' or ''"
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/spoken-text?gender={gender}"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/spoken-text?gender={gender}"
         )
 
     @lru_cache()
@@ -1243,7 +1294,7 @@ class Play(Corpus):
         """
 
         return self.make_get_json_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/spoken-text-by-character"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/spoken-text-by-character"
         )
 
     @lru_cache()
@@ -1257,7 +1308,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/stage-directions"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/stage-directions"
         )
 
     @lru_cache()
@@ -1271,7 +1322,7 @@ class Play(Corpus):
         """
 
         return self.make_get_text_request(
-            f"{self._base_url}/corpora/{self.corpus_name}/play/{self.name}/stage-directions-with-speakers"
+            f"{self._base_url}/corpora/{self.corpus_name}/plays/{self.name}/stage-directions-with-speakers"
         )
 
     def summary(self):
@@ -1286,20 +1337,21 @@ class Play(Corpus):
             }
         """
 
-        return {
+        return  {
             "id": self.id,
             "title": self.title,
             "subtitle": self.subtitle,
             "wikidata_id": self.wikidata_id,
             "authors": self.authors,
-            "genre": self.genre,
+            "normalized_genre": self.normalized_genre,
             "libretto": self.libretto,
             "source": self.source,
             "original_source": self.original_source,
             "year_written": self.year_written,
             "year_printed": self.year_printed,
             "year_premiered": self.year_premiered,
-            "year_normalized": self.year_normalized
+            "year_normalized": self.year_normalized,
+            "date_premiered": self.date_premiered
         }
 
     def __str__(self):
@@ -1324,14 +1376,15 @@ class Play(Corpus):
         result_string = f"Author(s): {', '.join([author['name'] + ' (' + author['fullname'] + ')' for author in self.authors])}\n" \
                         f"Title: {self.title} ({self.id}, {self.wikidata_id})\n" \
                         f"Subtitle: {self.subtitle}\n" \
-                        f"Genre: {self.genre}\n" \
+                        f"Genre: {self.normalized_genre}\n" \
                         f"Libretto: {self.libretto}\n" \
                         f"Source: {self.source['name']} ({self.source['url']})\n" \
                         f"Original Source: {self.original_source}\n" \
                         f"Year (written): {self.year_written}\n" \
                         f"Year (printed): {self.year_printed}\n" \
                         f"Year (premiered): {self.year_premiered}\n" \
-                        f"Year (normalized): {self.year_normalized}\n"
+                        f"Year (normalized): {self.year_normalized}\n" \
+                        f"Date (premiered): {self.date_premiered}\n"
         return result_string
 
 
@@ -1420,6 +1473,42 @@ class Character(Play):
                         f"Gender: {self.gender}\n" \
                         f"Is group: {self.is_group}\n"
         return result_string
+
+class Wikidata(DraCor):
+    """
+    A class to handle wikidata related requests.
+    """
+
+    def get_author_info_by_id(self, wikidata_id):
+        """
+        List author information from Wikidata.
+
+        Parameters
+        ----------
+        wikidata_id: str
+
+        Returns
+        -------
+        dict:
+        {
+          "birthDate": "1729-01-22T00:00:00Z",
+          "gender": "male",
+          "birthPlace": "Kamenz",
+          "deathPlace": "Brunswick",..
+        }
+        """
+        return self.make_get_json_request(f"{self._base_url}/wikidata/author/{wikidata_id}")
+
+    def mixnmatch(self):
+        """
+        Endpoint for Wikidata Mix'n'match.
+        See: https://meta.wikimedia.org/wiki/Mix'n'match/Import.
+
+        Returns
+        -------
+        string: CSV representation with play id, play name, wikidataID
+        """
+        return self.make_get_text_request(f"{self._base_url}/wikidata/mixnmatch")
 
 
 if __name__ == "__main__":
