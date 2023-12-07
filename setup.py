@@ -11,7 +11,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 setup(
     name='pydracor',
     packages=['pydracor'],
-    version='1.0.0',
+    version='2.0.0',
     license='mit',
     description='Python package which provides access to the DraCor API.',
     long_description=long_description,
