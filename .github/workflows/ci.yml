@@ -26,4 +26,4 @@ jobs:
           cache: pip
       - run: python -m pip install --upgrade pip
       - run: python -m pip install --editable .[test]
-      - run: pytest -v --durations=0
+      - run: pytest -vv --numprocesses=auto --dist=loadscope --durations=0
