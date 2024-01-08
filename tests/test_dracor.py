@@ -8,7 +8,7 @@ import unittest
 import warnings
 from pathlib import Path
 
-from dracor import DraCor, Corpus, Play, Character, Wikidata
+from pydracor import DraCor, Corpus, Play, Character, Wikidata
 
 CORPORA = sorted(['als', 'bash', 'cal', 'fre', 'ger', 'gersh', 'greek', 'hun', 'ita', 'rom', 'rus', 'shake', 'span', 'swe', 'tat', 'u'])
 ARTIFACTS_DIR = Path(__file__).parent/"test_artifacts"
