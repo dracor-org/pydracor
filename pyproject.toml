@@ -52,9 +52,7 @@ build-backend = "hatchling.build"
 requires = [ "hatchling"]
 
 [tool.hatch.build.targets.sdist]
-include = ["pydracor/*.py"]
-exclude = ["pydracor/test_dracor.py"]
+include = ["pydracor"]
 
 [tool.hatch.build.targets.wheel]
-include = ["pydracor/*.py"]
-exclude = ["pydracor/test_dracor.py"]
+include = ["pydracor"]
