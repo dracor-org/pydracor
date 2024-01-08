@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install --editable .
-      - run: python -m pip install pytest
-      - run: pytest pydracor/test_dracor.py -v -ra --showlocals
+      - run: python -m pip install --editable .[test]
+      - run: pytest -v
