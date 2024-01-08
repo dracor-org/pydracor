@@ -56,3 +56,12 @@ include = ["pydracor"]
 
 [tool.hatch.build.targets.wheel]
 include = ["pydracor"]
+
+# pytest
+# Ref: https://docs.pytest.org/en/stable/customize.html
+# ------------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = ["-ra", "--showlocals"]
+testpaths = "tests"
