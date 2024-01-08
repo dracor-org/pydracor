@@ -43,6 +43,7 @@ dependencies = [
 test = [
   "pytest~=7.4",
   "pytest-cov~=4.1",
+  "pytest-xdist~=3.5",
 ]
 [project.urls]
 Repository = "https://github.com/dracor-org/pydracor.git"
