@@ -43,6 +43,7 @@ dependencies = [
 test = [
   "pytest~=7.4",
   "pytest-cov~=4.1",
+  "pytest-xdist~=3.5",
 ]
 [project.urls]
 Repository = "https://github.com/dracor-org/pydracor.git"
@@ -52,9 +53,16 @@ build-backend = "hatchling.build"
 requires = [ "hatchling"]
 
 [tool.hatch.build.targets.sdist]
-include = ["pydracor/*.py"]
-exclude = ["pydracor/test_dracor.py"]
+include = ["pydracor"]
 
 [tool.hatch.build.targets.wheel]
-include = ["pydracor/*.py"]
-exclude = ["pydracor/test_dracor.py"]
+include = ["pydracor"]
+
+# pytest
+# Ref: https://docs.pytest.org/en/stable/customize.html
+# ------------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = ["-ra", "--showlocals"]
+testpaths = "tests"
