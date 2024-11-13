@@ -34,7 +34,6 @@ class DraCorAPI:
     def get_corpora(self) -> List[CorpusInCorpora]:
         return self._api.list_corpora()
 
-    # how do we pass the name to the corpus object?
     def get_corpus(self, name: str) -> Corpus:
         corpus = self._api.list_corpus_content(name)
         return Corpus(self._api, corpus)
@@ -58,8 +57,6 @@ class Corpus(CorpusModel):
     def __init__(self, api: PublicApi, corpus_model: CorpusModel) -> None:
         super().__init__(**corpus_model.dict())
         self._api = api
-
-    # def _populate_corpus(self)
 
     def get_metadata(self) -> List[PlayMetadata]:
         return self._api.corpus_metadata(self.name)
@@ -87,7 +84,7 @@ class Play(PlayModel):
         return self._api.play_info(self.corpus, self.name)
 
     def get_metrics(self) -> PlayMetrics:
-        return self._api.play_metrics(self.name, self.name)
+        return self._api.play_metrics(self.corpus, self.name)
 
     def get_tei(self) -> str:
         return self._api.play_tei(self.corpus, self.name)
@@ -106,9 +103,9 @@ class Play(PlayModel):
         elif download_format == DownloadFormat.graphml:
             return self._api.network_graphml(self.corpus, self.name)
         else:
-            raise ValueError
+            raise ValueError(f"The download_format must be one of: {', '.join([df.value for df in DownloadFormat])}")
 
-    def get_relations_csv(self, download_format: DownloadFormat) -> str:
+    def get_relations(self, download_format: DownloadFormat) -> str:
         if download_format == DownloadFormat.csv:
             return self._api.relations_csv(self.corpus, self.name)
         elif download_format == DownloadFormat.gexf:
@@ -116,10 +113,8 @@ class Play(PlayModel):
         elif download_format == DownloadFormat.graphml:
             return self._api.relations_graphml(self.corpus, self.name)
         else:
-            raise ValueError
+            raise ValueError(f"The download_format must be one of: {', '.join([df.value for df in DownloadFormat])}")
 
-    # how to handle gender here? need to check – where is it checked?
-    # is enum in openai specs, but 'role' is not
     def get_spoken_text(
         self,
         gender: Optional[str] = None,
