@@ -1,6 +1,6 @@
 [project]
 name = "pydracor"
-version = "3.0.0"
+version = "3.0.3"
 description = "Python package which wraps methods from pydracor-base to interact with the DraCor API."
 readme = "README.md"
 keywords = [
@@ -14,8 +14,7 @@ keywords = [
 ]
 license = "MIT"
 authors = [
-  { name = "Henny Sluyter-Gäthje", email = "sluytergaeth@uni-potsdam.de" },
-  { name = "Eduard Grigoriev", email = "happypuffin7@gmail.com" },
+  { name = "Henny Sluyter-Gäthje, Eduard Grigoriev", email = "sluytergaeth@uni-potsdam.de" },
 ]
 maintainers = [
   { name = "Henny Sluyter-Gäthje", email = "sluytergaeth@uni-potsdam.de" },
@@ -64,4 +63,5 @@ pythonpath = ["src"]
 [dependency-groups]
 dev = [
     "pytest>=7.4.4",
+    "twine>=6.1.0",
 ]
