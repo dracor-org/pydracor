@@ -28,7 +28,7 @@ pip install pydracor
 ### Import all classes
 
 ```python
->>> from pydracor import DraCorAPI, Corpus, Play, Wikidata, DTS
+from pydracor import DraCorAPI, Corpus, Play, Wikidata, DTS
 ```
 
 ### Dracor
@@ -72,7 +72,7 @@ pip install pydracor
 
   - Corpus info as dictionary
     ```python
-    >>> corpus.to_dict()
+    corpus.to_dict()
     ```
 
   - Access corpus attributes, plays as a list of PlayInCorpus objects
@@ -111,6 +111,11 @@ pip install pydracor
     ```python 
     metadata_csv = corpus.get_metadata_csv()
     ```
+  - Create Play in corpus (`corpora/{corpusname}/plays/{playname}`)
+    ```python
+    play = corpus.get_play("gogol-revizor")
+    ```
+
 
 ### Play
   - Initialize a *Play* instance by corpus name and play name (`corpora/{corpusname}/plays/{playname}`)
