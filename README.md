@@ -6,8 +6,13 @@ pydracor is a Python package which provides access to the [DraCor API](https://d
 
 The development of this package was supported by Computational Literary Studies Infrastructure (CLS INFRA). CLS INFRA has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 101004984.
 
+## Installation
+```sh
+pip install pydracor
+```
+
 ## Classes
-  - *DraCor*
+  - *DraCorAPI*
     > Base class used to represent the Drama Corpus entity with which *Corpus* and *Play* are created. 
   - *Corpus*
     > A class with which the `corpora/{corpusname}` endpoints can be requested
@@ -153,7 +158,7 @@ The development of this package was supported by Computational Literary Studies 
     play.get_networkdata("csv")
     ```
 
-  - Get reltations of a play in different formats (`corpora/{corpusname}/plays/{playname}/relations/{graphml, gexf, csv}`)
+  - Get relations of a play in different formats (`corpora/{corpusname}/plays/{playname}/relations/{graphml, gexf, csv}`)
     ```python
     play.get_relations("graphml")
     play.get_relations("gexf")
@@ -183,7 +188,7 @@ The development of this package was supported by Computational Literary Studies 
     ```
 
 ### DTS (Distributed Text Services) 
-  - Create DTS instance
+  - Initialize a *DTS* instance
     ```python
     dts = DTS()
     ```
@@ -193,7 +198,7 @@ The development of this package was supported by Computational Literary Studies 
     dts.get_dts()
     ```
 
-  - Get the list of the available collections of corpus (`/dts/collection`)
+  - Get the list of the available collections of a corpus (`/dts/collection`)
     ```python
     dts.get_collection("rus")
     ```
@@ -213,23 +218,19 @@ The development of this package was supported by Computational Literary Studies 
 ### Wikidata
   - Initialize a *Wikidata* instance
     ```python
-    >>> wikidata = Wikidata()
+    wikidata = Wikidata()
     ```
 
   - Get author information by WikidataID
     ```python
-    author_info = Wikidata.get_author_info("Q34628")
+    author_info = wikidata.get_author_info("Q34628")
     ```
 
   - Get Wikidata Mix'n'match information as CSV
     ```python
-    wikidata_mixnmatch = Wikidata.get_mixnmatch()
+    wikidata_mixnmatch = wikidata.get_mixnmatch()
     ```
 
-## Installation
-```sh
-$ pip install pydracor
-```
 
 ## License
 MIT
