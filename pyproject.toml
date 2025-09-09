@@ -1,6 +1,6 @@
 [project]
 name = "pydracor"
-version = "3.0.0"
+version = "3.0.1"
 description = "Python package which wraps methods from pydracor-base to interact with the DraCor API."
 readme = "README.md"
 keywords = [
@@ -48,13 +48,8 @@ Repository = "https://github.com/dracor-org/pydracor.git"
 build-backend = "hatchling.build"
 requires = ["hatchling"]
 
-[tool.hatch.build.targets.sdist]
-include = ["scr/*.py"]
-exclude = ["test/*.py"]
-
-[tool.hatch.build.targets.wheel]
-include = ["scr/*.py"]
-exclude = ["test/*.py"]
+[tool.hatch.build]
+sources = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]
