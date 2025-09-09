@@ -1,6 +1,6 @@
 # pydracor
 
-pydracor is a Python package which provides access to the [DraCor API](https://dracor.org/doc/api/). It is based on `pydracor-base` which was automatically generated using [OpenAPITools](https://github.com/OpenAPITools/openapi-generator).
+pydracor is a Python package which provides access to the [DraCor API](https://dracor.org/doc/api/). It is based on [`pydracor-base`](https://pypi.org/project/pydracor-base/) which was automatically generated using [OpenAPITools](https://github.com/OpenAPITools/openapi-generator).
 
 ## Acknowledgment:
 
