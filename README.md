@@ -1,6 +1,6 @@
 # pydracor
 
-pydracor is a Python package which provides access to the [DraCor API](https://dracor.org/doc/api/).
+pydracor is a Python package which provides access to the [DraCor API](https://dracor.org/doc/api/). It is based on `pydracor-base` which was automatically generated using [OpenAPITools](https://github.com/OpenAPITools/openapi-generator).
 
 ## Acknowledgment:
 
@@ -8,219 +8,206 @@ The development of this package was supported by Computational Literary Studies 
 
 ## Classes
   - *DraCor*
-    > Base class used to represent Drama Corpus entity.
-    > DraCor consists of Corpora.
+    > Base class used to represent the Drama Corpus entity with which *Corpus* and *Play* are created. 
   - *Corpus*
-    > A class used to represent a Corpus of DraCor.
-    > Corpus (*als*/*bash*/*cal*/*fre*/*ger*/*gersh*/*greek*/*hun*/*ita*/*rom*/*rus*/*shake*/*span*/*swe*/*tat*) consists of plays.
+    > A class with which the `corpora/{corpusname}` endpoints can be requested
   - *Play*
-    > A class used to represent a Play of a Corpus.
-    > Play consists of Characters.
-  - *Character*
-    > A class used to represent a Character of a Play.
+    > A class with which the `corpora/{corpusname}/plays/{playname}` endpoint can be requested
+  - *DTS*
+    > A class with which the `dts` endpoints can be requested
+  - *Wikidata*
+    > A class with which the `wikidata` endpoints can be requested 
 
 ## Code examples
 
 ### Import all classes
 
 ```python
->>> from pydracor import *
+>>> from pydracor import DracorAPI, Corpus, Play, Wikidata, DTS
 ```
 
 ### Dracor
   - Initialize a *DraCor* instance
     ```python
-    >>> dracor = DraCor()
+    dracor = DraCorAPI()
     ```
-  - Summary in a dictionary
+
+  - Initialize a local *DraCor* instance by setting the host
     ```python
-    >>> dracor.summary()
+    dracor = DraCor(host="http://localhost:8088/api/v1")
     ```
-  - Summary in a string
+
+  - Get summary as an Info object (`/info`)
     ```python
-    >>> str(dracor)
+    dracor.get_info()
     ```
-  - DraCor info in a dictionary
+
+  - Get the list of available corpora in DraCor (`/info/copora`) and get names
     ```python
-    >>> dracor.dracor_info()
+    corpora = dracor.get_corpora()
+    corpora_metrics = dracor.get_corpora(include='metrics')
+    corpora_names = [corpus.name for corpus in corpora]
     ```
-  - List available corpora in DraCor
-    ```python
-    >>> dracor.corpora()
-    >>> dracor.corpora(include='metrics')
+
+  - Get the resolved id for a play (`/id/{id}`)
+    ```python 
+    dracor.get_resolve_play_id("als000001")
     ```
-  - List available corpora names in DraCor
-    ```python
-    >>> dracor.corpora_names()
+
+  - Get the plays with characters by wikidata id
+    ```python 
+    dracor.get_plays_with_character_by_id("Q131412")
     ```
-  - List available corpora titles in DraCor
-    ```python
-    >>> dracor.corpora_titles()
-    ```
-  - Map X to Y
-    ```python
-    >>> dracor.corpus_name_to_repository()
-    >>> dracor.corpus_name_to_title()
-    >>> dracor.corpus_name_to_uri()
-    >>> dracor.play_title_to_corpus_name()
-    >>> dracor.play_title_to_play_id()
-    >>> dracor.play_name_to_corpus_name()
-    >>> dracor.play_name_to_play_id()
-    >>> dracor.play_id_to_play_title()
-    >>> dracor.play_id_to_play_name()
-    ```
-  - Submit SPARQL queries with query parameter
-    ```python
-    >>> dracor.sparql("PREFIX urn: <http://fliqz.com/> SELECT *  FROM <urn:x-arq:UnionGraph> WHERE {?sub ?pred ?obj .} LIMIT 1")
-    ```
+
 ### Corpus
-  - Initialize a *Corpus* instance
+  - Initialize a *Corpus* instance with the DraCor class (`/corpora/{corpusname}`)
     ```python
-    >>> corpus = Corpus('rus')
-    >>> corpus = Corpus('cal')
-    ...
+    corpus = dracor.get_corpus('rus')
     ```
-  - Summary in a dictionary
-    ```python
-    >>> corpus.summary()
-    ```
-  - Summary in a string
-    ```python
-    >>> str(corpus)
-    ```
-  - Authors' summary for a corpus
-    ```python
-    >>> corpus.authors_summary()
-    >>> corpus.authors_summary(num_of_authors=5)
-    ```
-  - String representation of authors_summary method
-    ```python
-    >>> corpus.authors_summary_str()
-    >>> corpus.authors_summary_str(num_of_authors=5)
-    ```
-  - Corpus info in a dictionary
-    ```python
-    >>> corpus.corpus_info()
-    ```
-  - Get all corpus' play Xs
-    ```python
-    >>> corpus.play_ids()
-    >>> corpus.play_names()
-    >>> corpus.play_titles()
-    ```
-  - Map play id to the X year
-    ```python
-    >>> corpus.years_written()
-    >>> corpus.years_premiered()
-    >>> corpus.years_normalized()
-    ```
-  - List of metadata for all plays in a corpus
-    ```python
-    >>> corpus.metadata()
-    ```
-  - Filter Plays of a Corpus
 
-    Filters are equivalent to the django filters
-
-    Possible relations: *eq* / *ne* / *gt* / *ge* / *lt* / *le* / *contains* / *icontains* / *exact* / *iexact* / *in*
-
-    Possible fields: all the attributes that the *Corpus* instance contains
+  - Corpus info as dictionary
     ```python
-    >>> corpus.filter(year_written__eq=1913, network_size__lt=20)
-    >>> corpus.filter(year_printed__lt=1850, source__icontains='lib.ru', year_premiered__gt=1845)
-    >>> corpus.filter(
-        id__in=frozenset(f"rus000{num:03d}" for num in range(0, 250, 2)),
-        subtitle__icontains='комедия',
-        author__name__contains='Крылов'
-    )
-    >>> corpus.filter(name__contains='mysl')
-    >>> corpus.filter(title__exact='Мысль')
-    >>> corpus.filter(
-        year_normalized__in=frozenset(['1935', '1936'])
-        source_url__contains='lib'
-    )
-    >>> corpus.filter(wikidata_id__iexact='Q1989636')
-    >>> corpus.filter(networkdata_csv_url__icontains='/andreyev-ne-ubiy/')
-    >>> corpus.filter(authors__name__icontains='Бабель')
+    >>> corpus.to_dict()
     ```
+
+  - Access corpus attributes, plays is a list of PlayInCorpus objects
+    ```python
+    corpus.name
+    corpus.plays
+    ```
+
+  - Extract all play ids from the corpus
+    ```python
+    play_ids = [play.id for play in corpus.plays]
+    ```
+
+  - Filter plays: normalized year after 1800
+    ```python
+    plays_after_1800 = [play for play in corpus.plays if play.year_normalized > 1800]
+    ```
+
+  - Get list of metadata for all plays in a corpus (`/corpora/{corpusname}/metadata`)
+    ```python
+    metadata = corpus.metadata()
+    ```
+
+  - Filter plays: Number of Acts more than five
+    ```python
+    plays_more_than_five_acts = [play for play in metadata if play.num_of_acts > 5]
+    ```
+
+  - Convert metadata to DataFrame
+    ```python
+    import pandas as pd
+    play_metadata_df = pd.DataFrame([play_metadata.to_dict() for play_metadata in metadata])
+    ```
+
+  - Get metadata as csv (`/corpora/{corpus}/metadata/csv`) 
+    ```python 
+    metadata_csv = corpus.get_metadata_csv()
+    ```
+
 ### Play
-  - Initialize a *Play* instance
+  - Initialize a *Play* instance by corpus name and play name (`corpora/{corpusname}/plays/{playname}`)
+    ```python
+    play = dracor.get_play("ger","gengenbach-der-nollhart")
+    ```
 
-    If *play_id* is not None, *play_name* and *play_title* are not considered
+  - Extract summary in a dictionary
+    ```python
+    play.to_dict()
 
-    If *play_id* is None *AND* *play_name* is not None, *play_title* is not considered
+    ```
+  - Access Play attributes
+    ```python 
+    play.normalized_genre
+    play.characters
+    ```
 
-    If *play_id* is None *AND* *play_name* is None, *play_title* should not be None, otherwise *ValueError* is raised
+  - Get and access network metrics for a single play (`corpora/{corpusname}/plays/{playname}/metrics`)
+    ```python
+    metrics = play.get_metrics()
+    metrics.average_degree
+    ```
 
-    If *play_id* is None, automatic corpus detection is applied
+  - Get a list of characters of a play (`corpora/{corpusname}/plays/{playname}/characters`)
     ```python
-    >>> play = Play('rus000160')
-    >>> play = Play(play_id='rus000160')
-    >>> play = Play(play_name='ostrovsky-dohodnoe-mesto')
-    >>> play = Play(play_title='Доходное место')
+    characters = play.get_characters()
     ```
-  - Summary in a dictionary
-    ```python
-    >>> play.summary()
+
+  - Convert character list to DataFrame
+  ```python
+    import pandas as pd
+    df = pd.DataFrame([character.to_dict() for character in characters])
     ```
-  - Summary in a string
+
+  - Get a list of characters of a play as csv (`corpora/{corpusname}/plays/{playname}/characters/csv`)
     ```python
-    >>> str(play)
+    play.get_characters_csv()
     ```
-  - Play info in a dictionary
+
+  - Get networkdata of a play in different formats (`corpora/{corpusname}/plays/{playname}/networkdata/{graphml, gexf, csv}`)
     ```python
-    >>> play.play_info()
+    play.get_networkdata("graphml")
+    play.get_networkdata("gexf")
+    play.get_networkdata("csv")
     ```
-  - Get network metrics for a single play
+
+  - Get reltations of a play in different formats (`corpora/{corpusname}/plays/{playname}/relations/{graphml, gexf, csv}`)
     ```python
-    >>> play.metrics()
+    play.get_relations("graphml")
+    play.get_relations("gexf")
+    play.get_relations("csv")
     ```
-  - Get a list of characters of a play
+
+  - Get spoken text of a play (excluding stage directions) (`corpora/{corpusname}/plays/{playname}/spoken-text`)
     ```python
-    >>> play.get_characters()
+    play.get_spoken_text()
+    play.get_spoken_text(sex='MALE')
+    play.get_spoken_text(relation='siblings')
     ```
-  - Get X of a play
+
+  - Get spoken text for each character of a play (`corpora/{corpusname}/plays/{playname}/spoken-text-by-character`)
     ```python
-    >>> play.num_of_male_characters
-    >>> play.num_of_female_characters
-    >>> play.num_of_unknown_characters
-    >>> play.tei
-    >>> play.csv
-    >>> play.gexf
+    play.get_spoken_text_by_character()
     ```
-  - Get spoken text of a play (excluding stage directions)
+
+  - Get stage directions of a play (`corpora/{corpusname}/plays/{playname}/stage-directions`)
     ```python
-    >>> play.spoken_text()
-    >>> play.spoken_text(gender='MALE')
-    >>> play.spoken_text(gender='FEMALE')
-    >>> play.spoken_text(gender='UNKNOWN')
+    play.get_stage_directions()
     ```
-  - Get spoken text for each character of a play
+
+  - Get stage directions and speaker text of a play (`corpora/{corpusname}/plays/{playname}/stage-directions-with-speakers`)
     ```python
-    >>> play.spoken_text_by_character()
+    play.get_stage_directions_with_speakers()
     ```
-  - Get all stage directions of a play
+
+### DTS (Distributed Text Services) 
+  - Create DTS instance
     ```python
-    >>> play.stage_directions()
+    dts = DTS()
     ```
-  - Get all stage directions of a play including speakers
-    ```python
-    >>> play.stage_directions_with_speakers()
+
+  - Get Entrypoint of the DraCor DTS implementation (`/dts`) 
+    ```python 
+    dts.get_dts()
     ```
-### Character
-  - Initialize a *Character* instance
+
+  - Get the list of the available collections of corpus (`/dts/collection`)
     ```python
-    >>> character = Character('yakov', 'rus000138')
-    >>> character = Character('kraft', 'rus000137')
-    ...
+    dts.get_collection("rus")
     ```
-  - Summary in a dictionary
+
+  - Use navigation endpoint of DTS (`/dts/navigation`)
     ```python
-    >>> character.summary()
+    dts.get_navigation("rus000160", "body/div[1]")
+    dts.get_navigation("rus000160", start="body/div[2]/div[1]", end="body/div[2]/div[2]")
     ```
-  - Summary in a string
+
+  - Use document endpoint of DTS (`/dts/document`)
     ```python
-    >>> str(character)
+    dts.get_document("rus000160", "body/div[1]")
+    dts.get_document("rus000160", start="body/div[2]/div[1]", end="body/div[2]/div[2]")
     ```
 
 ### Wikidata
@@ -228,23 +215,21 @@ The development of this package was supported by Computational Literary Studies 
     ```python
     >>> wikidata = Wikidata()
     ```
+
   - Get author information by WikidataID
     ```python
-    >>> author_info = Wikidata.get_author_info_by_id("Q34628")
-    ```
-  - Get Wikidata Mix'n'match information as CSV
-    ```python
-    >>> wikidata_mixnmatch = Wikidata.mixnmatch()
+    author_info = Wikidata.get_author_info("Q34628")
     ```
 
+  - Get Wikidata Mix'n'match information as CSV
+    ```python
+    wikidata_mixnmatch = Wikidata.get_mixnmatch()
+    ```
 
 ## Installation
 ```sh
 $ pip install pydracor
 ```
-## Todos
- - write more methods
- - write more tests
 
 ## License
 MIT
