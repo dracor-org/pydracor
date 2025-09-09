@@ -18,8 +18,35 @@ env:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    services:
+      dracor-api:
+        image: docker:20.10.7
+        options: --privileged
     steps:
       - uses: actions/checkout@v4
+      - name: Start the docker-compose stack
+        run: docker compose -f test/compose.dracor_api.dev.yml up --detach --wait
+      - name: Test if /info returns a response
+        run: curl --verbose http://localhost:8088/exist/restxq/v1/info
+      - name: Add test corpus
+        run: |
+          curl https://raw.githubusercontent.com/dracor-org/testdracor/main/corpus.xml | \
+          curl -X POST \
+          -u admin: \
+          -d@- \
+          -H 'Content-type: text/xml' \
+          http://localhost:8088/api/v1/corpora
+      - name: Load data for test corpus
+        run: |
+          curl -X POST \
+          -u admin: \
+          -H 'Content-type: application/json' \
+          -d '{"load":true}' \
+          http://localhost:8088/api/v1/corpora/test
+      - name: Wait 30 seconds for corpus data loading to complete
+        run: sleep 30
+      - name: Test if corpus returns a response
+        run: curl --verbose http://localhost:8088/api/v1/corpora/test
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

@@ -1,0 +1,30 @@
+name: dracor
+services:
+  api:
+    image: dracor/api:1.1.0
+    environment:
+      # override default API base with frontend proxy
+      - DRACOR_API_BASE=http://localhost:8088/api/v1
+      # set an empty password
+      - EXIST_PASSWORD=
+    depends_on:
+      - fuseki
+      - metrics
+    ports:
+      - 8080:8080
+  fuseki:
+    image: dracor/fuseki:1.1.3
+    environment:
+      - ADMIN_PASSWORD=qwerty
+  metrics:
+    image: dracor/metrics:1.5.1
+  frontend:
+    image: dracor/frontend:2.4.0
+    environment:
+      NGINX_RESOLVER: "127.0.0.11"
+      DRACOR_API_HOST: http://api:8080
+      DRACOR_API_PREFIX: /exist/restxq/v1
+    depends_on:
+      - api
+    ports:
+      - 8088:80
