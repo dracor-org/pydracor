@@ -23,7 +23,7 @@ The development of this package was supported by Computational Literary Studies 
 ### Import all classes
 
 ```python
->>> from pydracor import DracorAPI, Corpus, Play, Wikidata, DTS
+>>> from pydracor import DraCorAPI, Corpus, Play, Wikidata, DTS
 ```
 
 ### Dracor
@@ -70,7 +70,7 @@ The development of this package was supported by Computational Literary Studies 
     >>> corpus.to_dict()
     ```
 
-  - Access corpus attributes, plays is a list of PlayInCorpus objects
+  - Access corpus attributes, plays as a list of PlayInCorpus objects
     ```python
     corpus.name
     corpus.plays
@@ -136,7 +136,7 @@ The development of this package was supported by Computational Literary Studies 
     ```
 
   - Convert character list to DataFrame
-  ```python
+    ```python
     import pandas as pd
     df = pd.DataFrame([character.to_dict() for character in characters])
     ```
