@@ -438,7 +438,7 @@ class DTS:
         Returns:
             dict: The collection data.
         """
-        return self._api.get_dts_collection(collection_id)
+        return self._api.get_dts_collection(collection_id, nav)
 
     def get_navigation(self,
                        resource: str,

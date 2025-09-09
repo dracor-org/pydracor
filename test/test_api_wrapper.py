@@ -55,13 +55,11 @@ class TestDracorAPI(unittest.TestCase):
         with self.assertRaises(CorpusNotFound):
             self.dracor.get_corpus("testy")
 
-    # Fails with specifications: requests return 24 entries, but this method 23
-    # because the API schema does not have the commit ID as property 
     def test_get_play(self):
         corpus_name = "test"
         play_name = "gogol-revizor"
         play = self.dracor.get_play(corpus_name, play_name)
-        self.assertEqual(len(play.to_dict()), 24) # change to 24, after openapi schema was adapted
+        self.assertEqual(len(play.to_dict()), 24)
         self.assertEqual(len(play.segments), 53)
         self.assertEqual(len(play.characters), 31)
         self.assertEqual(play.name, play_name)
@@ -70,7 +68,6 @@ class TestDracorAPI(unittest.TestCase):
         with self.assertRaises(PlayNotFound):
             self.dracor.get_play(corpus_name, "testy")
 
-    # function is a redirect so result is None TODO: true?
     def test_get_resolve_play_id(self):
         play_id = "test000001"
         result = self.dracor.get_resolve_play_id(play_id)
@@ -148,7 +145,6 @@ class TestCorpus(unittest.TestCase):
             'originalSourcePublisher': None,
             'originalSourceYear': None})
 
-    # TODO: compare the entire string?
     def test_get_metadata_csv(self):
         result = self.corpus.get_metadata_csv()
         self.assertIsInstance(result, str)
@@ -172,7 +168,7 @@ class TestPlay(unittest.TestCase):
         self.corpus_name = 'test'
         self.play_name = 'lessing-emilia-galotti'
         self.play = self.dracor.get_play(self.corpus_name, self.play_name)
-        self.assertEqual(len(self.play.to_dict()), 23) # TODO: change to 19, after the API schema of PLay was changed
+        self.assertEqual(len(self.play.to_dict()), 23)
         self.assertEqual(len(self.play.segments), 43)
         self.assertEqual(len(self.play.characters), 13)
 
@@ -181,12 +177,11 @@ class TestPlay(unittest.TestCase):
         self.assertEqual(len(result.to_dict()), 15)
         self.assertEqual(len(result.nodes), 13)
 
-    # application/xml serialization problems
     def test_get_tei(self):
         result = self.play.get_tei()
         self.assertIsInstance(result, str)
-        self.assertEqual(len(result), 242843) #ADD
-        self.assertTrue(result.startswith("<?xml-model")) # ADD
+        self.assertEqual(len(result), 242843)
+        self.assertTrue(result.startswith("<?xml-model"))
 
     def test_get_txt(self):
         result = self.play.get_txt()
@@ -217,7 +212,6 @@ class TestPlay(unittest.TestCase):
             else:
                 self.assertEqual(len(result), 7355)
     
-    # gexf, graphml fails with unsupported content type: application/xml; also relations crashes if empty 
     def test_get_relations(self):
         for format in [DownloadFormat.csv, DownloadFormat.gexf, DownloadFormat.graphml]:
             result = self.play.get_relations(format)
