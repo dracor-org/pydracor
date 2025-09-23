@@ -1,6 +1,6 @@
 [project]
 name = "pydracor"
-version = "3.0.1"
+version = "3.0.2"
 description = "Python package which wraps methods from pydracor-base to interact with the DraCor API."
 readme = "README.md"
 keywords = [
@@ -39,7 +39,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "pydracor-base>=1.0.0",
+  "pydracor-base==1.0.1",
 ]
 [project.urls]
 Repository = "https://github.com/dracor-org/pydracor.git"
