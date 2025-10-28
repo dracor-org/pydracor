@@ -49,7 +49,7 @@ jobs:
         run: curl --verbose http://localhost:8088/api/v1/corpora/test
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.14"
           cache: pip
       - run: python -m pip install --upgrade pip
       - run: python -m pip install --editable . --group=dev
