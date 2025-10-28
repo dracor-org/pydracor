@@ -23,7 +23,7 @@ jobs:
         image: docker:20.10.7
         options: --privileged
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Start the docker-compose stack
         run: docker compose -f test/compose.dracor_api.dev.yml up --detach --wait
       - name: Test if /info returns a response
@@ -47,7 +47,7 @@ jobs:
         run: sleep 30
       - name: Test if corpus returns a response
         run: curl --verbose http://localhost:8088/api/v1/corpora/test
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
