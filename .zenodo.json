@@ -1,0 +1,60 @@
+{
+  "title": "pydracor",
+  "upload_type": "software",
+  "description": "<p><em><strong>pydracor</strong></em> is a Python package that provides access to the API of DraCor (<a href=\"https://dracor.org/doc/api\">https://dracor.org/doc/api</a>), the Drama Corpora Platform (<a href=\"https://dracor.org\">https://dracor.org</a>). The package builds on <em>pydracor-base</em>, which is generated from the DraCor API's OpenAPI specification with OpenAPI Generator.</p>",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Sluyter-Gäthje, Henny",
+      "affiliation": "University of Potsdam",
+      "orcid": "0000-0003-2969-3237"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Grigoriev, Eduard",
+      "type": "Other"
+    },
+    {
+      "name": "Fischer, Frank",
+      "affiliation": "Freie Universität Berlin",
+      "orcid": "0000-0003-2419-6629",
+      "type": "Other"
+    },
+    {
+      "name": "Milling, Carsten",
+      "affiliation": "University of Potsdam",
+      "orcid": "0000-0003-0553-7512",
+      "type": "Other"
+    },
+    {
+      "name": "Fütterer, Heinz-Alexander",
+      "orcid": "0000-0003-4397-027X",
+      "type": "Other"
+    },
+    {
+      "name": "Börner, Ingo",
+      "affiliation": "University of Potsdam",
+      "orcid": "0000-0001-8294-2541",
+      "type": "Other"
+    },
+    {
+      "name": "Orekhov, Boris",
+      "orcid": "0000-0002-9099-0436",
+      "type": "Other"
+    }
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.15302236",
+      "relation": "isDescribedBy",
+      "resource_type": "publication-report",
+      "scheme": "doi"
+    }
+  ],
+  "grants": [
+    {
+      "id": "10.13039/501100000780::101004984"
+    }
+  ]
+}
