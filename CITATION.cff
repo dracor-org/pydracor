@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: pydracor
+abstract: >-
+  pydracor is a Python package that provides access to the API of DraCor,
+  the Drama Corpora Platform (https://dracor.org). The package builds on
+  pydracor-base, which is generated from the DraCor API's OpenAPI
+  specification with OpenAPI Generator.
+authors:
+  - family-names: Sluyter-Gäthje
+    given-names: Henny
+    affiliation: University of Potsdam
+    orcid: "https://orcid.org/0000-0003-2969-3237"
+doi: 10.5281/zenodo.24334023
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24334023
+    description: Concept DOI for all versions of pydracor on Zenodo
+repository-code: "https://github.com/dracor-org/pydracor"
+url: "https://pypi.org/project/pydracor/"
+license: MIT
+keywords:
+  - DraCor
+  - API
+  - Python
+  - programmable corpora
+  - computational literary studies
+references:
+  - type: report
+    title: >-
+      CLS INFRA D7.2 Report on API Libraries for R and Python for the
+      Programmable Corpora Prototype "DraCor": "rdracor" and "pydracor"
+    authors:
+      - family-names: Sluyter-Gäthje
+        given-names: Henny
+        orcid: "https://orcid.org/0000-0003-2969-3237"
+      - family-names: Trilcke
+        given-names: Peer
+        orcid: "https://orcid.org/0000-0002-1421-4320"
+      - family-names: Börner
+        given-names: Ingo
+        orcid: "https://orcid.org/0000-0001-8294-2541"
+    date-published: 2023-02-28
+    doi: 10.5281/zenodo.15302236
+    publisher:
+      name: Zenodo
